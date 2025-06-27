@@ -6,3 +6,5 @@
 - 🧠 **Model architecture adjustments** for improved performance on non-sequential preference data
 - 🎌 **Anime-specific user-item dataset**
 - 🖥️ **GUI interface** for real-time recommendations
+
+This project provides a solid foundation for further development in personalized content recommendation using transformer-based models.
