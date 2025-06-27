@@ -27,3 +27,10 @@ The model trained on a large-scale dataset with 560,000 users and 54 million rat
 | NDCG@100     | 0.733    |
 
 ## Setup & Usage
+
+```bash
+curl -L -o Data/AnimeRatings54M/animeratings-mini-54m.zip \
+     https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
+
+unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
+```
