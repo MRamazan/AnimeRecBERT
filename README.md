@@ -28,6 +28,8 @@ The model trained on a large-scale dataset with 560,000 users and 54 million rat
 
 ## Setup & Usage
 
+### Download Dataset & Pretrained Model
+
 ```bash
 curl -L -o Data/AnimeRatings54M/animeratings-mini-54m.zip \
      https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
