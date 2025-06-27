@@ -8,3 +8,11 @@
 - 🖥️ **GUI interface** for real-time recommendations
 
 This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
+
+| Metric      | Value   |
+|-------------|---------|
+| Recall@1    | 0.507   |
+| Recall@10   | 0.919   |
+| Recall@100  | 0.999   |
+| NDCG@10     | 0.715   |
+| NDCG@100    | 0.733   |
