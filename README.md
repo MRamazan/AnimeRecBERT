@@ -36,3 +36,9 @@ curl -L -o Data/AnimeRatings54M/animeratings-mini-54m.zip \
 
 unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
 ```
+
+### Install Requirements
+
+```bash
+pip install requirements.txt
+```
