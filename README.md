@@ -11,13 +11,16 @@ This project provides a solid foundation for further development in personalized
 ## Metrics
 The model trained on a large-scale dataset with 560,000 users and 54 million ratings. Below are the Top-K recommendation metrics:
 
+<div style="display: flex; align-items: flex-start; gap: 20px;">
+<div>
+
 | Metric       | Value    |
 |--------------|----------|
 | Recall@1     | 0.507    |
 | Recall@5     | 0.841    |
 | Recall@10    | 0.919    |
 | Recall@20    | 0.967    |
-| Recall@50    | 0.994    |   <img src="bertrec_metrics_table.png">
+| Recall@50    | 0.994    |
 | Recall@100   | 0.9998   |
 | NDCG@1       | 0.507    |
 | NDCG@5       | 0.689    |
@@ -25,6 +28,14 @@ The model trained on a large-scale dataset with 560,000 users and 54 million rat
 | NDCG@20      | 0.727    |
 | NDCG@50      | 0.732    |
 | NDCG@100     | 0.733    |
+
+</div>
+<div>
+
+<img src="bertrec_metrics_table.png" alt="Metrics Visualization" width="400">
+
+</div>
+</div>
 
 ## Setup & Usage
 
