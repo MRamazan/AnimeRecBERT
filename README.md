@@ -17,7 +17,7 @@ The model trained on a large-scale dataset with 560,000 users and 54 million rat
 | Recall@5     | 0.841    |
 | Recall@10    | 0.919    |
 | Recall@20    | 0.967    |
-| Recall@50    | 0.994    |
+| Recall@50    | 0.994    |   <img src=Images/ML1m-results.png>
 | Recall@100   | 0.9998   |
 | NDCG@1       | 0.507    |
 | NDCG@5       | 0.689    |
