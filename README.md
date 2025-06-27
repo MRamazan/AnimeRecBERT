@@ -7,4 +7,4 @@
 - 🎌 **Anime-specific user-item dataset**
 - 🖥️ **GUI interface** for real-time recommendations
 
-This project provides a solid foundation for further development in personalized content recommendation using transformer-based models.
+This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
