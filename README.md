@@ -8,34 +8,30 @@
 
 This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
 
-## Metrics
-The model trained on a large-scale dataset with 560,000 users and 54 million ratings. Below are the Top-K recommendation metrics:
-
 <div style="display: flex; align-items: flex-start; gap: 30px;">
-
-<div>
-
-| Metric       | Value    |
-|--------------|----------|
-| Recall@1     | 0.507    |
-| Recall@5     | 0.841    |
-| Recall@10    | 0.919    |
-| Recall@20    | 0.967    |
-| Recall@50    | 0.994    |
-| Recall@100   | 0.9998   |
-| NDCG@1       | 0.507    |
-| NDCG@5       | 0.689    |
-| NDCG@10      | 0.715    |
-| NDCG@20      | 0.727    |
-| NDCG@50      | 0.732    |
-| NDCG@100     | 0.733    |
-
-</div>
-
-<div>
-<img src="bertrec_metrics_table.png" alt="Metrics Chart" style="max-width: 400px;">
-</div>
-
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Recall@1</td><td>0.507</td></tr>
+      <tr><td>Recall@5</td><td>0.841</td></tr>
+      <tr><td>Recall@10</td><td>0.919</td></tr>
+      <tr><td>Recall@20</td><td>0.967</td></tr>
+      <tr><td>Recall@50</td><td>0.994</td></tr>
+      <tr><td>Recall@100</td><td>0.9998</td></tr>
+      <tr><td>NDCG@1</td><td>0.507</td></tr>
+      <tr><td>NDCG@5</td><td>0.689</td></tr>
+      <tr><td>NDCG@10</td><td>0.715</td></tr>
+      <tr><td>NDCG@20</td><td>0.727</td></tr>
+      <tr><td>NDCG@50</td><td>0.732</td></tr>
+      <tr><td>NDCG@100</td><td>0.733</td></tr>
+    </tbody>
+  </table>
+  <img src="bertrec_metrics_table.png" alt="Metrics Chart" style="max-width: 400px;">
 </div>
 
 ## Setup & Usage
