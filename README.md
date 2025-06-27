@@ -17,18 +17,18 @@ The model trained on a large-scale dataset with 560,000 users and 54 million rat
 
 | Metric       | Value    |
 |--------------|----------|
-| Recall@1     | 0.507    |
-| Recall@5     | 0.841    |
-| Recall@10    | 0.919    |
-| Recall@20    | 0.967    |
-| Recall@50    | 0.994    |
 | Recall@100   | 0.9998   |
-| NDCG@1       | 0.507    |
-| NDCG@5       | 0.689    |
-| NDCG@10      | 0.715    |
-| NDCG@20      | 0.727    |
-| NDCG@50      | 0.732    |
 | NDCG@100     | 0.733    |
+| Recall@50    | 0.994    |
+| NDCG@50      | 0.732    |
+| Recall@20    | 0.967    |
+| NDCG@20      | 0.727    |
+| Recall@10    | 0.919    |
+| NDCG@10      | 0.715    |
+| Recall@5     | 0.841    |
+| NDCG@5       | 0.689    |
+| Recall@1     | 0.507    |
+| NDCG@1       | 0.507    |
 
 </td>
 <td>
