@@ -33,7 +33,7 @@ The model trained on a large-scale dataset with 560,000 users and 54 million rat
 </td>
 <td>
 
-<img src="bertrec_metrics_table.png" alt="Metrics Visualization" width="500">
+<img src="bertrec_metrics_table.png" alt="Metrics Visualization" width="700">
 
 </td>
 </tr>
