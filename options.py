@@ -29,9 +29,19 @@ parser.add_argument('--min_uc', type=int, default=5, help='Only keep users with 
 parser.add_argument('--min_sc', type=int, default=0, help='Only keep items with more than min_sc ratings')
 parser.add_argument('--split', type=str, default='leave_one_out', help='How to split the datasets')
 parser.add_argument('--dataset_split_seed', type=int, default=98765)
-parser.add_argument('--eval_set_size', type=int, default=500, 
+parser.add_argument('--eval_set_size', type=int, default=10000, 
                     help='Size of val and test set. 500 for ML-1m and 10000 for ML-20m recommended')
 
+
+#inference
+parser.add_argument('--checkpoint', '-c', type=str,
+                        help='Path to the model checkpoint (.pth file)')
+parser.add_argument('--dataset', '-d', type=str,
+                        help='Path to the dataset pickle file (.pkl)')
+parser.add_argument('--animes', '-a', type=str,
+                        help='Path to the animes JSON file')
+parser.add_argument('--inference', '-i', type=str, default=False,
+                        help='Path to the animes JSON file')
 ################
 # Dataloader
 ################
