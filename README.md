@@ -55,3 +55,5 @@ Install PyTorch from https://pytorch.org/get-started/locally/
 ```bash
 pip install requirements.txt
 ```
+
+### All Done, Start GUI
