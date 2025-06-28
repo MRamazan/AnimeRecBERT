@@ -63,7 +63,7 @@ venv\Scripts\activate
 
 ### Download Dataset & Pretrained Model
 
-#### Linux
+#### For Linux
 ```bash
 curl -L -o Data/AnimeRatings54M/animeratings-mini-54m.zip \
      https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
@@ -71,7 +71,7 @@ curl -L -o Data/AnimeRatings54M/animeratings-mini-54m.zip \
 unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
 ```
 
-#### Windows
+#### For Windows
 ```bash
 curl -L -o Data\AnimeRatings54M\animeratings-mini-54m.zip `
      https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
