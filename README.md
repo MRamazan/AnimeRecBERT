@@ -61,12 +61,12 @@ Some model parameters depends on the dataloader statistics.
 Instead of setting these parameters as constants, the code processes and save the data as in training, but will only use mappings.
 This way, changes in the original data won't cause an error.
 ```bash
-python inference_gui.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
-                      -d Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl /
-                      -a Data/animes.json /
-                      --inference True
-                      --template train_bert /
-            
+python inference.py \
+  -c Data/AnimeRatings54M/pretrained_bert.pth \
+  -d Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl \
+  -a Data/animes.json \
+  --inference True \
+  --template train_bert        
 ```
 
 ### Train Code (Not Required for Inference)
