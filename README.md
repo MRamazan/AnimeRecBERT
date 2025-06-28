@@ -86,5 +86,28 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
 ## 🌟 BERT Recommendations Based on My Favorites
 **FAVORITE POSITION WONT EFFECT RESULTS!**
 
+| #  | Anime Title                                                                                          | Score     |
+|----|------------------------------------------------------------------------------------------------------|-----------|
+| 1  | Yofukashi no Uta (Call of the Night)                                                                 | 14.1491   |
+| 2  | Tengoku Daimakyou (Heavenly Delusion)                                                                | 13.1946   |
+| 3  | Summertime Render                                                                                    | 13.0349   |
+| 4  | 86 Part 2 (Eighty-Six Part 2)                                                                        | 12.0690   |
+| 5  | Chainsaw Man                                                                                         | 12.0244   |
+| 6  | Kage no Jitsuryokusha ni Naritakute! 2nd Season (The Eminence in Shadow Season 2)                    | 11.9574   |
+| 7  | Cyberpunk: Edgerunners                                                                               | 11.9093   |
+| 8  | Dandadan                                                                                             | 11.8868   |
+| 9  | Sousou no Frieren (Frieren: Beyond Journey's End)                                                    | 11.8604   |
+|10  | Zom 100: Zombie ni Naru made ni Shitai 100 no Koto (Zom 100: Bucket List of the Dead)                | 11.8430   |
+|11  | Tenki no Ko (Weathering With You)                                                                    | 11.8104   |
+|12  | Make Heroine ga Oosugiru! (Too Many Losing Heroines!)                                                | 11.7766   |
+|13  | Horimiya                                                                                             | 11.7558   |
+|14  | Mushoku Tensei: Isekai Ittara Honki Dasu (Jobless Reincarnation)                                     | 11.7015   |
+|15  | Natsu e no Tunnel, Sayonara no Deguchi (The Tunnel to Summer, the Exit of Goodbye)                   | 11.6777   |
+|16  | Kage no Jitsuryokusha ni Naritakute! (The Eminence in Shadow)                                        | 11.6446   |
+|17  | Yamada-kun to Lv999 no Koi wo Suru (Loving Yamada at Lv999)                                          | 11.6185   |
+|18  | Boku no Kokoro no Yabai Yatsu (The Dangers in My Heart)                                              | 11.6104   |
+|19  | Ore dake Level Up na Ken (Solo Leveling)                                                             | 11.5978   |
+|20  | Mushoku Tensei II: Isekai Ittara Honki Dasu Part 2 (Jobless Reincarnation Season 2 Part 2)           | 11.5757   |
+
 
 
