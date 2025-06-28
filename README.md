@@ -68,6 +68,7 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
                       --template train_bert /
             
 ```
+
 ### Train Code (Not Required for Inference)
 you can set parameters in templates.py file
 ```bash
@@ -76,6 +77,7 @@ you can set parameters in templates.py file
 python main.py  --template train_bert             
 ```
 
+### GUI
 <img src="gui.png" alt="BERTRec GUI" width="900">
 
 # Results
