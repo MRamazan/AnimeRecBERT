@@ -1,13 +1,10 @@
 import sys
 import pickle
-
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
                              QWidget, QPushButton, QListWidget, QLabel, QScrollArea,
                              QFrame, QGridLayout, QListWidgetItem, QMessageBox, QLineEdit)
-
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QPropertyAnimation, QEasingCurve, QRect
-from PyQt5.QtGui import QFont, QPalette, QColor, QPainter, QPainterPath
-
+from PyQt5.QtGui import QFont
 from utils import *
 from options import args
 from models import model_factory
@@ -37,6 +34,37 @@ class RoundedButton(QPushButton):
             QPushButton:pressed {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                           stop: 0 #8A5CF6, stop: 1 #7C4DDB);
+            }
+            QPushButton:disabled {
+                background: #2A2A2A;
+                color: #666666;
+            }
+        """)
+
+
+class RemoveButton(QPushButton):
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+
+        self.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                          stop: 0 #FF6B6B, stop: 1 #FF5252);
+                color: #FFFFFF;
+                border: none;
+                border-radius: 15px;
+                padding: 12px 24px;
+                font-size: 14px;
+                font-weight: bold;
+                min-height: 20px;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                          stop: 0 #FF5722, stop: 1 #E64A19);
+            }
+            QPushButton:pressed {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                          stop: 0 #D32F2F, stop: 1 #B71C1C);
             }
             QPushButton:disabled {
                 background: #2A2A2A;
@@ -173,6 +201,7 @@ class ModelThread(QThread):
             for idx, score in zip(top_indices.numpy()[0], top_scores.detach().numpy()[0]):
                 if idx in inverted_smap:
                     anime_id = inverted_smap[idx]
+                    # Skip if this anime is already in favorites
                     if anime_id in self.favorite_anime_ids:
                         continue
                     if str(anime_id) in self.id_to_anime:
@@ -180,7 +209,6 @@ class ModelThread(QThread):
                         recommendations.append(anime_name)
                         scores.append(float(score))
 
-                        # En iyi 20 öneriye ulaştığımızda dur
                         if len(recommendations) >= 20:
                             break
 
@@ -261,12 +289,19 @@ class AnimeRecommendationGUI(QMainWindow):
         layout.addWidget(self.search_box)
 
         self.anime_list = RoundedListWidget()
+        self.anime_list.itemSelectionChanged.connect(self.on_anime_selection_changed)
         layout.addWidget(self.anime_list)
 
         self.add_favorite_btn = RoundedButton("Add to Favorites")
         self.add_favorite_btn.clicked.connect(self.add_to_favorites)
         self.add_favorite_btn.setEnabled(False)
         layout.addWidget(self.add_favorite_btn)
+
+        # Yeni eklenen buton - seçili animeyi favorilerden kaldır
+        self.remove_from_favorites_btn = RemoveButton("Remove from Favorites")
+        self.remove_from_favorites_btn.clicked.connect(self.remove_from_favorites_via_anime_list)
+        self.remove_from_favorites_btn.setEnabled(False)
+        layout.addWidget(self.remove_from_favorites_btn)
 
         return frame
 
@@ -281,6 +316,7 @@ class AnimeRecommendationGUI(QMainWindow):
         layout.addWidget(title)
 
         self.favorites_list = RoundedListWidget()
+        self.favorites_list.itemSelectionChanged.connect(self.on_favorites_selection_changed)
         layout.addWidget(self.favorites_list)
 
         button_layout = QVBoxLayout()
@@ -290,7 +326,13 @@ class AnimeRecommendationGUI(QMainWindow):
         self.get_recommendations_btn.setEnabled(False)
         button_layout.addWidget(self.get_recommendations_btn)
 
-        self.clear_favorites_btn = RoundedButton("Clear Favorites")
+        # Yeni eklenen buton - seçili favoriyi sil
+        self.remove_selected_btn = RemoveButton("Remove Selected")
+        self.remove_selected_btn.clicked.connect(self.remove_selected_favorite)
+        self.remove_selected_btn.setEnabled(False)
+        button_layout.addWidget(self.remove_selected_btn)
+
+        self.clear_favorites_btn = RoundedButton("Clear All Favorites")
         self.clear_favorites_btn.clicked.connect(self.clear_favorites)
         self.clear_favorites_btn.setEnabled(False)
         button_layout.addWidget(self.clear_favorites_btn)
@@ -329,27 +371,96 @@ class AnimeRecommendationGUI(QMainWindow):
 
         return frame
 
+    def on_anime_selection_changed(self):
+        """Anime listesinde seçim değiştiğinde butonları güncelle"""
+        current_item = self.anime_list.currentItem()
+        if current_item:
+            anime_id = current_item.data(Qt.UserRole)
+            # Eğer seçili anime favorilerde varsa "Remove from Favorites" butonunu aktif et
+            if anime_id in self.favorite_animes:
+                self.remove_from_favorites_btn.setEnabled(True)
+                self.add_favorite_btn.setEnabled(False)
+            else:
+                self.remove_from_favorites_btn.setEnabled(False)
+                self.add_favorite_btn.setEnabled(True)
+        else:
+            self.add_favorite_btn.setEnabled(False)
+            self.remove_from_favorites_btn.setEnabled(False)
+
+    def on_favorites_selection_changed(self):
+        """Favoriler listesinde seçim değiştiğinde "Remove Selected" butonunu güncelle"""
+        current_item = self.favorites_list.currentItem()
+        self.remove_selected_btn.setEnabled(current_item is not None)
+
+    def remove_selected_favorite(self):
+        """Favoriler listesinden seçili animeyi kaldır"""
+        current_item = self.favorites_list.currentItem()
+        if current_item:
+            anime_id = current_item.data(Qt.UserRole)
+            anime_name = current_item.text()
+
+            # Anime ID'sini favorilerden kaldır
+            if anime_id in self.favorite_animes:
+                self.favorite_animes.remove(anime_id)
+
+            # Listeden item'ı kaldır
+            row = self.favorites_list.row(current_item)
+            self.favorites_list.takeItem(row)
+
+            # Buton durumlarını güncelle
+            self.update_button_states()
+
+            # Anime listesindeki seçimi güncelle
+            self.on_anime_selection_changed()
+
+            self.status_label.setText(f"Removed '{anime_name}' from favorites!")
+
+    def remove_from_favorites_via_anime_list(self):
+        """Anime listesinden seçilen animeyi favorilerden kaldır"""
+        current_item = self.anime_list.currentItem()
+        if current_item:
+            anime_id = current_item.data(Qt.UserRole)
+            anime_name = current_item.text()
+
+            if anime_id in self.favorite_animes:
+                # Anime ID'sini favorilerden kaldır
+                self.favorite_animes.remove(anime_id)
+
+                # Favoriler listesinden ilgili item'ı bul ve kaldır
+                for i in range(self.favorites_list.count()):
+                    fav_item = self.favorites_list.item(i)
+                    if fav_item.data(Qt.UserRole) == anime_id:
+                        self.favorites_list.takeItem(i)
+                        break
+
+                # Buton durumlarını güncelle
+                self.update_button_states()
+                self.on_anime_selection_changed()
+
+                self.status_label.setText(f"Removed '{anime_name}' from favorites!")
+
+    def update_button_states(self):
+        """Buton durumlarını favoriler listesine göre güncelle"""
+        has_favorites = len(self.favorite_animes) > 0
+        self.get_recommendations_btn.setEnabled(has_favorites)
+        self.clear_favorites_btn.setEnabled(has_favorites)
+
     def load_model_and_data(self):
         try:
             self.status_label.setText("Loading model and data...")
 
-            # Initialize args
             args.bert_max_len = 128
 
-            # Load dataset from the provided path
             dataset_path = Path(self.dataset_path)
             with dataset_path.open('rb') as f:
                 self.dataset = pickle.load(f)
 
-            # Load anime data from the provided path
             with open(self.animes_path, "r", encoding="utf-8") as file:
                 self.id_to_anime = json.load(file)
 
             # Initialize model
-            train_loader, val_loader, test_loader = dataloader_factory(args)
-            del train_loader
-            del val_loader
-            del test_loader
+            _ = dataloader_factory(args)
+
             self.model = model_factory(args)
 
             # Load model weights
@@ -359,7 +470,8 @@ class AnimeRecommendationGUI(QMainWindow):
             self.populate_anime_list()
 
             self.status_label.setText("Model loaded successfully! Select your favorite animes.")
-            self.add_favorite_btn.setEnabled(True)
+            # İlk yüklemede sadece add butonunu aktif et
+            # self.add_favorite_btn.setEnabled(True) # Bu on_anime_selection_changed'de yapılacak
 
         except Exception as e:
             self.status_label.setText(f"Error loading model: {str(e)}")
@@ -405,8 +517,9 @@ class AnimeRecommendationGUI(QMainWindow):
                 fav_item.setData(Qt.UserRole, anime_id)
                 self.favorites_list.addItem(fav_item)
 
-                self.get_recommendations_btn.setEnabled(True)
-                self.clear_favorites_btn.setEnabled(True)
+                # Buton durumlarını güncelle
+                self.update_button_states()
+                self.on_anime_selection_changed()
 
                 # Clear search box
                 self.search_box.clear()
@@ -420,8 +533,10 @@ class AnimeRecommendationGUI(QMainWindow):
         self.favorites_list.clear()
         self.recommendations_list.clear()
 
-        self.get_recommendations_btn.setEnabled(False)
-        self.clear_favorites_btn.setEnabled(False)
+        # Tüm butonları güncelle
+        self.update_button_states()
+        self.on_anime_selection_changed()
+        self.remove_selected_btn.setEnabled(False)
 
         self.status_label.setText("Favorites cleared! Add some animes to get recommendations.")
 
@@ -444,6 +559,7 @@ class AnimeRecommendationGUI(QMainWindow):
 
         for i, (anime_name, score) in enumerate(zip(recommendations, scores)):
             item_text = f"#{i + 1}: {anime_name}\nScore: {score:.4f}"
+
             item = QListWidgetItem(item_text)
             self.recommendations_list.addItem(item)
 
@@ -456,11 +572,7 @@ class AnimeRecommendationGUI(QMainWindow):
         QMessageBox.warning(self, "Warning", error_message)
 
 
-
-
 def main():
-
-
     # Validate checkpoint file
     if not Path(args.checkpoint).exists():
         print(f"Error: Checkpoint file not found: {args.checkpoint}")
