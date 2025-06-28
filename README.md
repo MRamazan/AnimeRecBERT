@@ -60,7 +60,7 @@ you can set parameters in templates.py file
 ```bash
 # This script will train, validate and test the model.
 # Training not required for inference.
-python main.py  --template train_bert /              
+python main.py  --template train_bert             
 ```
 
 ### All Done, Start GUI
