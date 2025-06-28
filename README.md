@@ -53,7 +53,7 @@ unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
 ### Install Requirements
 Install PyTorch from https://pytorch.org/get-started/locally/
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 ### Train Code (Not Required for Inference)
 you can set parameters in templates.py file
