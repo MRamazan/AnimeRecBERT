@@ -63,11 +63,20 @@ venv\Scripts\activate
 
 ### Download Dataset & Pretrained Model
 
+#### Linux
 ```bash
 curl -L -o Data/AnimeRatings54M/animeratings-mini-54m.zip \
      https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
 
 unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
+```
+
+#### Windows
+```bash
+curl -L -o Data\AnimeRatings54M\animeratings-mini-54m.zip `
+     https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
+
+Expand-Archive -Path 'Data\AnimeRatings54M\animeratings-mini-54m.zip' -DestinationPath 'Data\AnimeRatings54M'
 ```
 
 ### Install Requirements
@@ -89,7 +98,7 @@ python inference_gui.py \
   --template train_bert        
 ```
 
-### Train Code (Not Required for inference_gui.py)
+### Train Code (**Not Required for inference**)
 you can set parameters in templates.py file
 ```bash
 # This script will train, validate and test the model.
