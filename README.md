@@ -88,28 +88,29 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
 
 ## 🏆 Top Anime Recommendations for Me
 
-| #  | Anime Title                                                                                          | Score    |
-|----|------------------------------------------------------------------------------------------------------|----------|
-| 1  | Yofukashi no Uta (Call of the Night)                                                                 | 14.1722  |
-| 2  | Mushoku Tensei II: Isekai Ittara Honki Dasu (Jobless Reincarnation Season 2)                         | 12.5865  |
-| 3  | Tengoku Daimakyou (Heavenly Delusion)                                                                | 12.4979  |
-| 4  | Summertime Render (Summertime Rendering)                                                             | 12.1528  |
-| 5  | Jujutsu Kaisen                                                                                       | 12.1281  |
-| 6  | Kage no Jitsuryokusha ni Naritakute! 2nd Season (The Eminence in Shadow Season 2)                    | 11.8307  |
-| 7  | Chainsaw Man                                                                                         | 11.7639  |
-| 8  | Ore dake Level Up na Ken (Solo Leveling)                                                             | 11.7322  |
-| 9  | Boku no Kokoro no Yabai Yatsu (The Dangers in My Heart)                                              | 11.6973  |
-| 10 | Zom 100: Zombie ni Naru made ni Shitai 100 no Koto (Zom 100: Bucket List of the Dead)                | 11.6877  |
-| 11 | Dandadan                                                                                             | 11.6165  |
-| 12 | Yamada-kun to Lv999 no Koi wo Suru (My Love Story with Yamada-kun at Lv999)                          | 11.6112  |
-| 13 | Horimiya                                                                                             | 11.5888  |
-| 14 | [Oshi no Ko]                                                                                         | 11.5710  |
-| 15 | Sousou no Frieren (Frieren: Beyond Journey’s End)                                                    | 11.5599  |
-| 16 | Spy x Family                                                                                         | 11.5101  |
-| 17 | Otonari no Tenshi-sama ni Itsunomanika Dame Ningen ni Sareteita Ken                                  | 11.4686  |
-| 18 | Make Heroine ga Oosugiru! (The Dreaming Boy is a Realist)                                            | 11.3972  |
-| 19 | Tonikaku Kawaii (TONIKAWA: Over the Moon for You)                                                    | 11.3336  |
-| 20 | Mushoku Tensei: Isekai Ittara Honki Dasu Part 2 (Jobless Reincarnation Part 2)                       | 11.3269  |
+| Rank | Anime Title                                                                 | Score    |
+|------|------------------------------------------------------------------------------|----------|
+| #1   | Yofukashi no Uta                                                            | 14.1062  |
+| #2   | Summertime Render                                                           | 12.8611  |
+| #3   | Mushoku Tensei II: Isekai Ittara Honki Dasu                                 | 12.8518  |
+| #4   | Tengoku Daimakyou                                                           | 12.7181  |
+| #5   | Jujutsu Kaisen                                                              | 12.3117  |
+| #6   | Horimiya                                                                     | 12.0604  |
+| #7   | Chainsaw Man                                                                | 11.7838  |
+| #8   | 86 Part 2                                                                   | 11.7756  |
+| #9   | Mushoku Tensei: Isekai Ittara Honki Dasu Part 2                             | 11.6520  |
+| #10  | Ore dake Level Up na Ken (Solo Leveling)                                    | 11.6396  |
+| #11  | Kage no Jitsuryokusha ni Naritakute! 2nd Season                             | 11.6270  |
+| #12  | Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e 2nd Season                 | 11.5398  |
+| #13  | Sousou no Frieren                                                           | 11.5376  |
+| #14  | Tonikaku Kawaii (Tonikawa: Over the Moon for You)                          | 11.5205  |
+| #15  | Cyberpunk: Edgerunners                                                      | 11.5020  |
+| #16  | Tenki no Ko (Weathering With You)                                           | 11.5014  |
+| #17  | Dandadan                                                                     | 11.4893  |
+| #18  | Spy x Family                                                                | 11.4581  |
+| #19  | Make Heroine ga Oosugiru!                                                  | 11.4468  |
+| #20  | Boku no Kokoro no Yabai Yatsu                                              | 11.4122  |
+
 
 
 ### ✅ Evaluation: How Good Are the Recommendations?
