@@ -115,7 +115,7 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
 
 ### ✅ Evaluation: How Good Are the Recommendations?
 
-Out of the Top 20 recommendations, **8 titles** were already in my completed/favorites list — showing strong personalization performance.
+Out of the Top 20 recommendations, **9 titles** were already in my completed/favorites list — showing strong personalization performance.
 
 
 | Watched & Liked? ✅ | Title                                                                 |
@@ -125,9 +125,10 @@ Out of the Top 20 recommendations, **8 titles** were already in my completed/fav
 | ✅                  | Make Heroine ga Oosugiru!                                              |
 | ✅                  | Spy x Family                                                           |
 | ✅                  | Dandadan                                                               |
-| ✅                  | Zom 100: Zombie ni Naru made ni Shitai 100 no Koto                     |
+| ✅                  | 86 Part 2                      |
 | ✅                  | Jujutsu Kaisen                                                         |
 | ✅                  | Chainsaw Man                                                           |
+| ✅                  | Cyberpunk: Edgerunners                                                            |
 
 *I’m genuinely excited to watch the remaining anime as well — even with a quick glance, it’s clear they’re a great fit for my taste.*
 
