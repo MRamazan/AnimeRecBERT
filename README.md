@@ -66,3 +66,4 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
                       -a Data/animes.json /
                       --template train_bert
 ```
+<img src="gui.png" alt="BERTRec GUI" width="700">
