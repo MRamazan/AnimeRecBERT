@@ -47,9 +47,19 @@ git clone https://github.com/MRamazan/AnimeRecBERT
 cd AnimeRecBERT
 
 python -m venv venv
-source venv/bin/activate #for linux
-venv\Scripts\activate #for windows
+
 ```
+### Activate venv
+#### For Linux
+```
+source venv/bin/activate 
+```
+
+#### For Windows
+```
+venv\Scripts\activate 
+```
+
 
 ### Download Dataset & Pretrained Model
 
