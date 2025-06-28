@@ -67,3 +67,24 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
                       --template train_bert
 ```
 <img src="gui.png" alt="BERTRec GUI" width="900">
+
+# Results
+## 🌟 My Favorites
+
+| #  | Anime Title                                                                |
+|----|----------------------------------------------------------------------------|
+| 1  | Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e                            |
+| 2  | Giji Harem                                                                 |
+| 3  | Ijiranaide, Nagatoro-san                                                   |
+| 4  | 86 (Eighty-Six)                                                            |
+| 5  | Mushoku Tensei: Isekai Ittara Honki Dasu                                   |
+| 6  | Made in Abyss                                                              |
+| 7  | Shangri-La Frontier: Kusoge Hunter, Kamige ni Idoman to su                 |
+| 8  | Vanitas no Karte                                                           |
+| 9  | Jigokuraku                                                                 |
+
+## 🌟 BERT Recommendations Based on My Favorites
+#! !FAVORITE POSITION WONT EFFECT RESULTS!  #!
+
+
+
