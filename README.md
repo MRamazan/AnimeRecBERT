@@ -84,7 +84,7 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
 | 9  | Jigokuraku                                                                 |
 
 ## 🌟 BERT Recommendations Based on My Favorites
-#! !FAVORITE POSITION WONT EFFECT RESULTS!  #!
+**FAVORITE POSITION WONT EFFECT RESULTS!**
 
 
 
