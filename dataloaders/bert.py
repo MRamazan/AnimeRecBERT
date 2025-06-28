@@ -9,9 +9,12 @@ class BertDataloader(AbstractDataloader):
     def __init__(self, args, dataset):
         super().__init__(args, dataset)
         args.num_items = len(self.smap)
+        if args.inference:
+            return
         self.max_len = args.bert_max_len
         self.mask_prob = args.bert_mask_prob
         self.CLOZE_MASK_TOKEN = self.item_count + 1
+    
 
         code = args.train_negative_sampler_code
         #train_negative_sampler = negative_sampler_factory(code, self.train, self.val, self.test,
