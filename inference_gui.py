@@ -171,7 +171,6 @@ class ModelThread(QThread):
             for idx, score in zip(top_indices.numpy()[0], top_scores.detach().numpy()[0]):
                 if idx in inverted_smap:
                     anime_id = inverted_smap[idx]
-                    # Skip if this anime is already in favorites
                     if anime_id in self.favorite_anime_ids:
                         continue
                     if str(anime_id) in self.id_to_anime:
@@ -183,7 +182,6 @@ class ModelThread(QThread):
                         if len(recommendations) >= 20:
                             break
 
-            # Eğer yeterince öneri bulamazsak, kullanıcıyı uyar
             if len(recommendations) < 20:
                 print(f"Warning: Only found {len(recommendations)} recommendations after filtering favorites")
 
