@@ -116,7 +116,6 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
 
 Out of the Top 20 recommendations, **8 titles** were already in my completed/favorites list — showing strong personalization performance.
 
-I’m genuinely excited to watch the remaining anime as well — even with a quick glance, it’s clear they’re a great fit for my taste.
 
 | Watched & Liked? ✅ | Title                                                                 |
 |---------------------|------------------------------------------------------------------------|
@@ -129,4 +128,6 @@ I’m genuinely excited to watch the remaining anime as well — even with a qui
 | ✅                  | Jujutsu Kaisen                                                         |
 | ✅                  | Chainsaw Man                                                           |
 
-→ **Precision@20 = 9 / 20 = 0.45**
+*I’m genuinely excited to watch the remaining anime as well — even with a quick glance, it’s clear they’re a great fit for my taste.*
+
+
