@@ -127,13 +127,14 @@ python main.py  --template train_bert
 
 ### ✅ Evaluation: How Good Are the Recommendations?
 
-Out of the Top 20 recommendations, **9 titles** were already in my completed/favorites list — showing strong personalization performance.
+Out of the Top 20 recommendations, **10 titles** were already in my completed/favorites list — showing strong personalization performance.
 
 
 | Watched & Liked? ✅ | Title                                                                 |
 |---------------------|------------------------------------------------------------------------|
 | ✅                  | Mushoku Tensei II: Isekai Ittara Honki Dasu                            |
 | ✅                  | Mushoku Tensei: Isekai Ittara Honki Dasu Part 2                        |
+| ✅                  | Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e 2nd Season                           |
 | ✅                  | Make Heroine ga Oosugiru!                                              |
 | ✅                  | Spy x Family                                                           |
 | ✅                  | Dandadan                                                               |
