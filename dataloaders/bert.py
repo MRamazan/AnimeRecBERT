@@ -1,6 +1,6 @@
 from .base import AbstractDataloader
 from .negative_samplers import negative_sampler_factory
-
+import os
 import torch
 import torch.utils.data as data_utils
 
@@ -12,6 +12,7 @@ class BertDataloader(AbstractDataloader):
         if args.inference:
           if os.path.isfile(args.dataset):
               return
+     
         self.max_len = args.bert_max_len
         self.mask_prob = args.bert_mask_prob
         self.CLOZE_MASK_TOKEN = self.item_count + 1
