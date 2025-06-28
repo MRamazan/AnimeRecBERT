@@ -1,8 +1,10 @@
 import sys
 import pickle
+
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
                              QWidget, QPushButton, QListWidget, QLabel, QScrollArea,
                              QFrame, QGridLayout, QListWidgetItem, QMessageBox, QLineEdit)
+
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QPropertyAnimation, QEasingCurve, QRect
 from PyQt5.QtGui import QFont, QPalette, QColor, QPainter, QPainterPath
 
