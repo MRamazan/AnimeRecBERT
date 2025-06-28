@@ -40,23 +40,23 @@ The model trained on a large-scale dataset with 560,000 users and 54 million rat
 </table>
 
 ## Setup & Usage
-### Clone Repo & Create Venv
+### Clone Repo
 
 ```bash
 git clone https://github.com/MRamazan/AnimeRecBERT
 cd AnimeRecBERT
-
-python -m venv venv
-
 ```
-### Activate venv
+
+###  Create & Activate venv
 #### For Linux
 ```
+python3 -m venv venv
 source venv/bin/activate 
 ```
 
 #### For Windows
 ```
+python -m venv venv
 venv\Scripts\activate 
 ```
 
