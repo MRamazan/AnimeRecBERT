@@ -51,7 +51,7 @@ unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
 ```
 
 ### Install Requirements
-
+Install PyTorch from https://pytorch.org/get-started/locally/
 ```bash
 pip install requirements.txt
 ```
