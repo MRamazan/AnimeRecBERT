@@ -57,3 +57,9 @@ pip install requirements.txt
 ```
 
 ### All Done, Start GUI
+```bash
+python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
+                      -d Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl /
+                      -a Data/animes.json /
+                      --template train_bert
+```
