@@ -10,7 +10,8 @@ class BertDataloader(AbstractDataloader):
         super().__init__(args, dataset)
         args.num_items = len(self.smap)
         if args.inference:
-            return
+          if not os.path.isfile(args.dataset):
+              return
         self.max_len = args.bert_max_len
         self.mask_prob = args.bert_mask_prob
         self.CLOZE_MASK_TOKEN = self.item_count + 1
