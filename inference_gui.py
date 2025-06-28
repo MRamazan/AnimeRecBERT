@@ -458,9 +458,6 @@ class AnimeRecommendationGUI(QMainWindow):
             with open(self.animes_path, "r", encoding="utf-8") as file:
                 self.id_to_anime = json.load(file)
 
-            # Initialize model
-            _ = dataloader_factory(args)
-
             self.model = model_factory(args)
 
             # Load model weights
@@ -573,7 +570,8 @@ class AnimeRecommendationGUI(QMainWindow):
 
 
 def main():
-    # Validate checkpoint file
+    _ = dataloader_factory(args)
+
     if not Path(args.checkpoint).exists():
         print(f"Error: Checkpoint file not found: {args.checkpoint}")
         sys.exit(1)
