@@ -86,7 +86,7 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
 ## 🌟 BERT Recommendations Based on My Favorites
 **Note:** The *position of favorites does not affect inference results*, as the model uses only the presence of items (not sequence).
 
-## 🏆 Top Anime Rankings
+## 🏆 Top Anime Recommendations for Me
 
 | #  | Anime Title                                                                                          | Score    |
 |----|------------------------------------------------------------------------------------------------------|----------|
@@ -112,15 +112,21 @@ python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
 | 20 | Mushoku Tensei: Isekai Ittara Honki Dasu Part 2 (Jobless Reincarnation Part 2)                       | 11.3269  |
 
 
-##
-**Among the 20 anime, there are 8 anime I have already watched and liked, including sequels.**
-* Mushoku Tensei II: Isekai Ittara Honki Dasu
-* Mushoku Tensei: Isekai Ittara Honki Dasu Part 2
-* Make Heroine ga Oosugiru!
-* Spy x Family
-* Dandadan  
-* Zom 100: Zombie ni Naru made ni Shitai 100 no Koto
-* Jujutsu Kaisen
-* Chainsaw Man
+### ✅ Evaluation: How Good Are the Recommendations?
 
+Out of the Top 20 recommendations, **8 titles** were already in my completed/favorites list — showing strong personalization performance.
 
+I’m genuinely excited to watch the remaining anime as well — even with a quick glance, it’s clear they’re a great fit for my taste.
+
+| Watched & Liked? ✅ | Title                                                                 |
+|---------------------|------------------------------------------------------------------------|
+| ✅                  | Mushoku Tensei II: Isekai Ittara Honki Dasu                            |
+| ✅                  | Mushoku Tensei: Isekai Ittara Honki Dasu Part 2                        |
+| ✅                  | Make Heroine ga Oosugiru!                                              |
+| ✅                  | Spy x Family                                                           |
+| ✅                  | Dandadan                                                               |
+| ✅                  | Zom 100: Zombie ni Naru made ni Shitai 100 no Koto                     |
+| ✅                  | Jujutsu Kaisen                                                         |
+| ✅                  | Chainsaw Man                                                           |
+
+→ **Precision@20 = 9 / 20 = 0.45**
