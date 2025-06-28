@@ -57,6 +57,9 @@ pip install requirements.txt
 ```
 
 ### All Done, Start GUI
+Some model parameters depends on the dataloader statistics. 
+instead settings those parameters as constants; code will process data like in train but only mappings will be used.
+this way, change in the original data wont raise an error.
 ```bash
 python inference.py   -c Data/AnimeRatings54M/pretrained_bert.pth /
                       -d Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl /
