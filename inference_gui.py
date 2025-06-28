@@ -168,7 +168,7 @@ class ModelThread(QThread):
                 self.error_occurred.emit("Please add some favorite animes first!")
                 return
 
-            smap = self.dataset["smap"]
+            smap = self.dataset
             inverted_smap = {v: k for k, v in smap.items()}
 
             # Convert anime IDs to model format
@@ -209,7 +209,7 @@ class ModelThread(QThread):
                         recommendations.append(anime_name)
                         scores.append(float(score))
 
-                        if len(recommendations) >= 20:
+                        if len(recommendations) >= 40:
                             break
 
             if len(recommendations) < 20:
@@ -453,7 +453,10 @@ class AnimeRecommendationGUI(QMainWindow):
 
             dataset_path = Path(self.dataset_path)
             with dataset_path.open('rb') as f:
-                self.dataset = pickle.load(f)
+                self.dataset_ = pickle.load(f)
+
+            self.dataset = self.dataset_["smap"]
+            del self.dataset_
 
             with open(self.animes_path, "r", encoding="utf-8") as file:
                 self.id_to_anime = json.load(file)
