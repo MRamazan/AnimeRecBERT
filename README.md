@@ -6,6 +6,9 @@
 - 🎌 **Anime-specific user-item dataset**
 - 🖥️ **GUI interface** for real-time recommendations
 
+## Web Demo Available
+🌐https://animerecbertweb-production.up.railway.app/
+
 This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
 
 ## Metrics
