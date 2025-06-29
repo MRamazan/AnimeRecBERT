@@ -205,7 +205,13 @@ class ModelThread(QThread):
                     if anime_id in self.favorite_anime_ids:
                         continue
                     if str(anime_id) in self.id_to_anime:
-                        anime_name = self.id_to_anime[str(anime_id)]
+                        # anime.json artık liste formatında, ilk elemanı ana isim
+                        anime_titles = self.id_to_anime[str(anime_id)]
+                        if isinstance(anime_titles, list) and len(anime_titles) > 0:
+                            anime_name = anime_titles[0]  # İlk elemana ana isim olarak davran
+                        else:
+                            anime_name = str(anime_titles)  # Fallback
+
                         recommendations.append(anime_name)
                         scores.append(float(score))
 
@@ -487,22 +493,52 @@ class AnimeRecommendationGUI(QMainWindow):
             raise Exception(f"Failed to load checkpoint from {self.checkpoint_path}: {str(e)}")
 
     def populate_anime_list(self):
-        # Get all anime names and sort them
-        self.all_animes = [(int(k), v) for k, v in self.id_to_anime.items()]
-        self.all_animes.sort(key=lambda x: x[1])  # Sort by name
+        """Anime listesini yeni format ile doldur - ana ismi göster ama tüm başlıkları sakla"""
+        self.all_animes = []
 
-        for anime_id, anime_name in self.all_animes:
-            item = QListWidgetItem(f"{anime_name} (ID{anime_id})")
+        for anime_id_str, anime_titles in self.id_to_anime.items():
+            anime_id = int(anime_id_str)
+
+            if isinstance(anime_titles, list) and len(anime_titles) > 0:
+                # İlk eleman ana isim
+                primary_title = anime_titles[0]
+                # Tüm başlıkları sakla (arama için)
+                all_titles = anime_titles
+            else:
+                primary_title = str(anime_titles)
+                all_titles = [primary_title]
+
+            self.all_animes.append((anime_id, primary_title, all_titles))
+
+        self.all_animes.sort(key=lambda x: x[1])
+
+        for anime_id, primary_title, all_titles in self.all_animes:
+            item = QListWidgetItem(f"{primary_title} (ID{anime_id})")
             item.setData(Qt.UserRole, anime_id)
+            # Arama için tüm başlıkları da sakla
+            item.setData(Qt.UserRole + 1, all_titles)
             self.anime_list.addItem(item)
 
     def filter_anime_list(self):
+        """Geliştirilmiş arama - tüm anime başlıklarını kontrol et"""
         search_text = self.search_box.text().lower()
 
         for i in range(self.anime_list.count()):
             item = self.anime_list.item(i)
+            all_titles = item.data(Qt.UserRole + 1)
+
+            # Ana başlık (görünen metin) ile arama
             item_text = item.text().lower()
-            item.setHidden(search_text not in item_text)
+            match_found = search_text in item_text
+
+            # Eğer ana başlıkta bulunamadıysa, tüm alternatif başlıklarda ara
+            if not match_found and all_titles:
+                for title in all_titles:
+                    if search_text in title.lower():
+                        match_found = True
+                        break
+
+            item.setHidden(not match_found)
 
     def add_to_favorites(self):
         current_item = self.anime_list.currentItem()
