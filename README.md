@@ -8,8 +8,8 @@
 
 This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
 
-## Web Demo Available
-🌐https://animerecbertweb-production.up.railway.app/
+## Web Demo Available 🌐
+https://animerecbertweb-production.up.railway.app/
 
 ## Metrics
 The model trained on a large-scale dataset with 560,000 users and 54 million ratings. Below are the Top-K recommendation metrics:
