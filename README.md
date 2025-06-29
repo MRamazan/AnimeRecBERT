@@ -5,6 +5,7 @@
 - 🕒 **No positional encoding**, since the dataset contains no temporal information, i removed positional encoding and it performed better.
 - 🎌 **Anime-specific user-item dataset**
 - 🖥️ **GUI interface** for real-time recommendations
+- 🌐 **Web Demo** https://animerecbertweb-production.up.railway.app/
 
 This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
 
