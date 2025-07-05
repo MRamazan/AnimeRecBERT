@@ -11,6 +11,7 @@ This project provides a solid foundation for further development in personalized
 
 ## Web Demo Available 🌐
 www.animerecbert.online
+https://github.com/MRamazan/AnimeRecBertWeb
 
 ## Metrics
 The model trained on a large-scale dataset with 560,000 users and 54 million ratings. Below are the Top-K recommendation metrics:
