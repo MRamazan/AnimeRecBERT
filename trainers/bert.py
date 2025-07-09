@@ -1,6 +1,6 @@
 from .base import AbstractTrainer
 from .utils import recalls_and_ndcgs_for_ks
-
+import torch
 import torch.nn as nn
 import time
 
@@ -23,15 +23,15 @@ class BERTTrainer(AbstractTrainer):
         pass
 
     def calculate_loss(self, batch):
-        seqs, labels = batch
-        
-        logits = self.model(seqs)  # B x T x V
+      seqs, labels = batch
 
+      with autocast():  # 🔸 AMP burada devrede
+        logits = self.model(seqs)  # B x T x V
         logits = logits.view(-1, logits.size(-1))  # (B*T) x V
         labels = labels.view(-1)  # B*T
-
         loss = self.ce(logits, labels)
-        return loss
+
+      return loss
 
     def calculate_metrics(self, batch):
         seqs, candidates, labels = batch
