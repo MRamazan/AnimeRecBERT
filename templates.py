@@ -40,8 +40,8 @@ def set_template(args):
         args.model_code = 'bert'
         args.model_init_seed = 0
 
-        args.bert_dropout = 0.2
-        args.weight_decay = 1e-4
+        args.bert_dropout = 0.3
+        args.weight_decay = 1e-3
         args.bert_hidden_units = 256
         args.bert_mask_prob = 0.15
         args.bert_max_len = 128
