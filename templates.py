@@ -12,7 +12,7 @@ def set_template(args):
         args.split = 'leave_one_out'
 
         args.dataloader_code = 'bert'
-        batch = 128
+        batch = 256
         args.train_batch_size = batch
         args.val_batch_size = batch
         args.test_batch_size = batch
