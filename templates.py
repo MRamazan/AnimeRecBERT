@@ -33,7 +33,7 @@ def set_template(args):
         args.enable_lr_schedule = True
         args.decay_step = 25
         args.gamma = 1.0
-        args.num_epochs = 5
+        args.num_epochs = 4
         args.metric_ks = [1, 5, 10, 20, 50, 100]
         args.best_metric = 'NDCG@10'
 
