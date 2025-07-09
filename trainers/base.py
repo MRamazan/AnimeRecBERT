@@ -80,8 +80,6 @@ class AbstractTrainer(metaclass=ABCMeta):
 
     def train_one_epoch(self, epoch, accum_iter):
         self.model.train()
-        if self.args.enable_lr_schedule:
-            self.lr_scheduler.step()
 
         average_meter_set = AverageMeterSet()
         tqdm_dataloader = tqdm(self.train_loader)
@@ -112,6 +110,9 @@ class AbstractTrainer(metaclass=ABCMeta):
                 log_data.update(average_meter_set.averages())
                 self.log_extra_train_info(log_data)
                 self.logger_service.log_train(log_data)
+                
+        if self.args.enable_lr_schedule:
+            self.lr_scheduler.step()
 
         return accum_iter
 
