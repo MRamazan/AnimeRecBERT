@@ -3,7 +3,7 @@ from .utils import recalls_and_ndcgs_for_ks
 import torch
 import torch.nn as nn
 import time
-
+from torch.cuda.amp import 
 class BERTTrainer(AbstractTrainer):
     def __init__(self, args, model, train_loader, val_loader, test_loader, export_root):
         super().__init__(args, model, train_loader, val_loader, test_loader, export_root)
@@ -33,11 +33,16 @@ class BERTTrainer(AbstractTrainer):
 
       return loss
 
-    def calculate_metrics(self, batch):
-        seqs, candidates, labels = batch
-        scores = self.model(seqs)  # B x T x V
-        scores = scores[:, -1, :]  # B x V
-        scores = scores.gather(1, candidates)  # B x C
 
-        metrics = recalls_and_ndcgs_for_ks(scores, labels, self.metric_ks)
-        return metrics
+    def calculate_metrics(self, batch):
+     seqs, candidates, labels = batch
+
+     with torch.no_grad():  # genelde metrics hesaplanırken gradient gerekmez
+        with autocast():  # 🔸 AMP ile model forward
+            scores = self.model(seqs)  # B x T x V
+            scores = scores[:, -1, :]  # B x V
+            scores = scores.gather(1, candidates)  # B x C
+
+     metrics = recalls_and_ndcgs_for_ks(scores, labels, self.metric_ks)
+     return metrics
+
