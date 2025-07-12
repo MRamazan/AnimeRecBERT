@@ -140,7 +140,7 @@ class AbstractDataset(metaclass=ABCMeta):
         if self.args.split == 'leave_one_out':
             print('Splitting')
             user_group = df.groupby('uid')
-            user2items = user_group.progress_apply(lambda d: list(d.sort_values(by='timestamp')['sid']))
+            user2items = user_group.progress_apply(lambda d: list(d['sid']))
             train, val, test = {}, {}, {}
             for user in range(user_count):
                 items = user2items[user]
