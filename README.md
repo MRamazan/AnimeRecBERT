@@ -10,9 +10,9 @@
 ### Kaggle Inference & Interactive Recommender
 In kaggle notebooks, full dataset used for training and inference instead of subset like in web demo. <br><br>
 
-**Interactive Recommender notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-inference <br><br>
+**Interactive Recommender notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-inference <br>
 
-**Train notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-train
+**Train notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-train <br>
 
 
 This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
