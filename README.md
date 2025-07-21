@@ -1,6 +1,10 @@
 # AnimeRecBERT: BERT-Based Anime Recommendation System
 
-**AnimeRecBERT** is a personalized anime recommendation system based on BERT transformer architecture. Adapted from [https://github.com/jaywonchung/BERT4Rec-VAE-Pytorch](https://github.com/jaywonchung/BERT4Rec-VAE-Pytorch), this project introduces customizations tailored for an anime recommendation system and inference.
+**AnimeRecBERT** is a personalized anime recommendation system based on BERT transformer architecture. Adapted from [https://github.com/jaywonchung/BERT4Rec-VAE-Pytorch](https://github.com/jaywonchung/BERT4Rec-VAE-Pytorch), this project introduces customizations tailored for an anime recommendation system and inference. Main dataset has 1.77M users and 148M ratings, in this project we used a subset of 680K users for efficiency.
+
+Full dataset used in this repo: https://github.com/MRamazan/AnimeRecBERT-Hybrid
+
+This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
 
 - 🕒 **No positional encoding**, since the dataset contains no temporal information, i removed positional encoding and it performed better.
 - 🎌 **Anime-specific user-item dataset**
@@ -13,9 +17,6 @@ In kaggle notebooks, full dataset used for training and inference instead of sub
 **Interactive Recommender notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-inference <br>
 
 **Train notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-train <br>
-
-
-This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
 
 ## Web Demo Available 🌐
 www.animerecbert.online <br>
