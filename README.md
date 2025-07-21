@@ -8,8 +8,8 @@
 - 🌐 **Web Demo**
 
 ### Kaggle Inference & Interactive Recommender
-In kaggle notebooks, full dataset used for training and inference instead of subset like in web demo.
-**Interactive Recommender notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-inference
+In kaggle notebooks, full dataset used for training and inference instead of subset like in web demo. <br>
+**Interactive Recommender notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-inference <br>
 **Train notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-train
 
 
