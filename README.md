@@ -5,7 +5,13 @@
 - 🕒 **No positional encoding**, since the dataset contains no temporal information, i removed positional encoding and it performed better.
 - 🎌 **Anime-specific user-item dataset**
 - 🖥️ **GUI interface** for real-time recommendations
-- 🌐 **Web Demo** 
+- 🌐 **Web Demo**
+
+### Kaggle Inference & Interactive Recommender
+In kaggle notebooks, full dataset used for training and inference instead of subset like in web demo.
+**Interactive Recommender notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-inference
+**Train notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-train
+
 
 This project provides a solid foundation for further development in personalized anime recommendation using transformer-based models.
 
