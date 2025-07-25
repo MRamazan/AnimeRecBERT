@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Anime Recommendation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .error-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .error-icon {
+            font-size: 5rem;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .error-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .error-message {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .error-details {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #c53030;
+            text-align: left;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .anime-decoration {
+            position: absolute;
+            opacity: 0.1;
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .decoration-1 {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .decoration-2 {
+            top: 20%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+
+        .decoration-3 {
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 2s;
+        }
+
+        .decoration-4 {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 1.5s;
+        }
+
+        .troubleshoot {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .troubleshoot h3 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+
+        .troubleshoot ul {
+            text-align: left;
+            color: #555;
+        }
+
+        .troubleshoot li {
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .error-title {
+                font-size: 2rem;
+            }
+
+            .error-message {
+                font-size: 1rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Anime themed decorations -->
+    <div class="anime-decoration decoration-1">⚡</div>
+    <div class="anime-decoration decoration-2">🌟</div>
+    <div class="anime-decoration decoration-3">🎌</div>
+    <div class="anime-decoration decoration-4">🗾</div>
+
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        
+        <h1 class="error-title">Oops! Something went wrong</h1>
+        
+        <div class="error-message">
+            {% if error %}
+                {{ error }}
+            {% else %}
+                An unexpected error occurred while loading the anime recommendation system.
+            {% endif %}
+        </div>
+
+        {% if error %}
+        <div class="error-details">
+            <strong>Error Details:</strong><br>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="buttons">
+            <a href="/" class="btn btn-primary">🏠 Go Home</a>
+            <a href="javascript:history.back()" class="btn btn-secondary">⬅️ Go Back</a>
+            <a href="javascript:location.reload()" class="btn btn-secondary">🔄 Refresh</a>
+        </div>
+
+        <div class="troubleshoot">
+            <h3>🔧 Troubleshooting Tips:</h3>
+            <ul>
+                <li>Check if the server is running properly</li>
+                <li>Verify your internet connection</li>
+                <li>Try refreshing the page</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh after 30 seconds if it's a system initialization error
+        const errorMessage = "{{ error | lower }}";
+        if (errorMessage.includes('initialization') || errorMessage.includes('not initialized')) {
+            setTimeout(() => {
+                if (confirm('Would you like to refresh the page automatically?')) {
+                    location.reload();
+                }
+            }, 30000);
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.error-container');
+            
+            // Add hover effect to container
+            container.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            container.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+
+            // Add click effect to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

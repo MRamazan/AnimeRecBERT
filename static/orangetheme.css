@@ -1,0 +1,1992 @@
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:linear-gradient(45deg, #ffb347, #c9882b);
+
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+
+    transition: opacity 0.5s ease;
+        }
+        body.loaded {
+    opacity: 1;
+}
+        html {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        html.loaded {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Loading screen */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:linear-gradient(45deg, #ffb347, #c9882b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Preload critical animations */
+        .preload-animations {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Theme Switcher Styles */
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-switcher-toggle {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: inherit;
+        }
+
+        .theme-switcher-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .theme-options {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .theme-options.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 2px 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .theme-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(3px);
+        }
+
+        .theme-option.active {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .theme-option.active .theme-color {
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-purple .theme-color {
+            background:linear-gradient(45deg, #ffb347, #c9882b);
+        }
+
+        .theme-green .theme-color {
+            background:linear-gradient(45deg, #ffb347, #c9882b);
+        }
+
+        .theme-orange .theme-color {
+            background:linear-gradient(45deg, #ffb347, #c9882b);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .theme-switcher {
+                top: 15px;
+                right: 15px;
+                padding: 6px;
+            }
+
+            .theme-switcher-toggle {
+                font-size: 18px;
+                padding: 6px;
+            }
+
+            .theme-options {
+                right: -20px;
+                min-width: 130px;
+            }
+
+            .theme-option {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+        }
+
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+        }
+
+        /* Favorites Section */
+        .favorites-section {
+
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #333;
+            text-align: center;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .anime-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.anime-dropdown.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.anime-option {
+    padding: 12px 20px;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+    opacity: 0;
+    color: white;
+    background:rgba(25, 25, 46, 0.95);
+    transform: translateX(-10px);
+    animation: slideInOption 0.3s ease-out forwards;
+}
+
+.anime-option:nth-child(1) { animation-delay: 0.05s; }
+.anime-option:nth-child(2) { animation-delay: 0.1s; }
+.anime-option:nth-child(3) { animation-delay: 0.15s; }
+.anime-option:nth-child(4) { animation-delay: 0.2s; }
+.anime-option:nth-child(5) { animation-delay: 0.25s; }
+.anime-option:nth-child(6) { animation-delay: 0.3s; }
+.anime-option:nth-child(7) { animation-delay: 0.35s; }
+.anime-option:nth-child(8) { animation-delay: 0.4s; }
+.anime-option:nth-child(9) { animation-delay: 0.45s; }
+.anime-option:nth-child(10) { animation-delay: 0.5s; }
+
+.anime-option:hover {
+    background-color: #f8f9ff;
+}
+
+.anime-option:last-child {
+    border-bottom: none;
+}
+
+@keyframes slideInOption {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+        .anime-option:hover {
+            background-color: #f8f9ff;
+        }
+
+        .anime-option:last-child {
+            border-bottom: none;
+        }
+
+        .favorites-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            min-height: 60px;
+        }
+
+        .favorite-tag {
+            background:linear-gradient(45deg, #ffb347, #c9882b);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .favorite-tag .remove-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: background-color 0.2s ease;
+        }
+
+        .favorite-tag .remove-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background:linear-gradient(45deg, #ffb347, #c9882b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(25, 25, 46, 0.95);
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Recommendations Section */
+        .recommendations-section {
+            display: none;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .recommendations-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 30px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .anime-card-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    animation: slideInLeft 0.6s ease-out;
+    position: relative; /* ::before konumlandırması için */
+    padding-left: 8px;   /* şerit alanı bırakılır */
+}
+        .anime-card-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background:linear-gradient(45deg, #ffb347, #c9882b); /* mavi tonları */
+    border-radius: 4px;
+}
+
+        .anime-rank {
+
+            background: linear-gradient(45deg, #ffb347, #c9882b);
+            color: white;
+            width: 0;
+            height: 0px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .anime-rank::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+
+            border-radius: 50%;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+.anime-bottom-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.genres-container-front {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+}
+
+.genre-tag-front {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.genre-tag-front:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.already-watched-btn {
+    flex-shrink: 0;
+    min-width: 120px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .anime-bottom-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .genres-container-front {
+        justify-content: center;
+    }
+
+    .genre-tag-front {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+}
+.anime-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 2px; /* Kenar şeridin kalınlığı */
+    background: linear-gradient(45deg, #ffb347, #c9882b); /* Turuncu gradient şerit */
+
+    /* İç kısım için ayrı bir arka plan katmanı */
+    /* overflow hidden ile köşe yumuşaklığı korunur */
+    overflow: hidden;
+    cursor: pointer;
+    perspective: 1000px;
+    height: 175px;
+    flex: 1;
+    min-width: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* İçerik kısmı: beyaz arka plan ve aynı border-radius ile */
+.anime-card > .content {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 17px; /* padding kadar küçük değer */
+    height: 100%;
+    width: 100%;
+}
+
+        .anime-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.7s;
+            transform-style: preserve-3d;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-inner.flipped .anime-score,
+.card-inner.flipped .already-watched-btn {
+    display: none !important;
+}
+
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .card-front {
+            background: white;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .card-back {
+            background: linear-gradient(45deg, #ffb347, #c9882b);
+            color: white;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+
+        .anime-image-container {
+    position: relative;
+    width: 200px; /* Bu değeri 250px'den istediğiniz değere değiştirin */
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+        .anime-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .anime-card:hover .anime-image {
+            transform: scale(1.05);
+        }
+
+        .no-image-placeholder {
+            width: 120px;
+            height: 120px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #667eea;
+        }
+
+        .anime-score {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+
+        .anime-info {
+            padding: 30px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+        }
+
+        .already-watched-btn {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(144, 51, 178, 0.3);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.already-watched-btn::before {
+    font-size: 0.9rem;
+}
+
+.already-watched-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(144, 51, 178, 0.4);
+}
+
+.already-watched-btn:active {
+    transform: translateY(0) scale(1.02);
+}
+.blacklist-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 71, 87, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.blacklist-button.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.blacklist-button:hover {
+    background: rgba(255, 71, 87, 1);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+}
+
+.blacklist-counter {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4757;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+.blacklist-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.blacklist-modal.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.blacklist-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+}
+
+.blacklist-modal.show .blacklist-content {
+    transform: scale(1);
+}
+
+.blacklist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.blacklist-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.blacklist-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    padding: 2px;
+    border-radius: 40%;
+    transition: all 0.3s ease;
+}
+
+.blacklist-close:hover {
+    background: inherit;
+    color: #333;
+}
+
+.blacklist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #ff4757;
+    transition: all 0.3s ease;
+}
+
+.blacklist-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.blacklist-item-name {
+    font-weight: 500;
+    color: #333;
+    flex-grow: 1;
+}
+
+.blacklist-item-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.restore-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.restore-btn:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+.delete-permanent-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.delete-permanent-btn:hover {
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+.blacklist-empty {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+.blacklist-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.clear-blacklist-btn {
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.clear-blacklist-btn:hover {
+    background: #ff3742;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .blacklist-button {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+    }
+
+    .blacklist-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    .blacklist-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .blacklist-item-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+/* Remove Blacklist Button Styles */
+.remove-blacklist-btn {
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.remove-blacklist-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.remove-blacklist-btn:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #d63031 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.remove-blacklist-btn:hover::before {
+    left: 100%;
+}
+
+.remove-blacklist-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+}
+
+/* Blacklist Item Container */
+.blacklist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.blacklist-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.blacklist-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    flex: 1;
+    margin-right: 12px;
+    word-break: break-word;
+}
+
+/* Empty Blacklist State */
+.empty-blacklist {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Alternative compact style for small screens */
+@media (max-width: 768px) {
+    .remove-blacklist-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        border-radius: 6px;
+    }
+
+    .blacklist-item {
+        padding: 10px 12px;
+    }
+
+    .blacklist-name {
+        font-size: 13px;
+        margin-right: 8px;
+    }
+}
+
+/* Icon version (if you want to use an icon instead of text) */
+.remove-blacklist-btn.icon-only {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 14px;
+}
+
+.remove-blacklist-btn.icon-only::after {
+    content: "×";
+    font-weight: bold;
+}
+/* Custom Confirm Modal */
+.custom-confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-confirm-modal.show {
+    opacity: 1;
+}
+
+.custom-confirm-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    color: white;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.custom-confirm-modal.show .custom-confirm-content {
+    transform: scale(1);
+}
+
+.confirm-header h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: inherit;
+}
+
+.confirm-message p {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.confirm-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.confirm-btn.cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.confirm-btn.cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.confirm-btn.confirm {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+}
+
+.confirm-btn.confirm:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #d63031 100%);
+    transform: translateY(-2px);
+}
+/* Danger theme variant */
+.remove-blacklist-btn.danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.remove-blacklist-btn.danger:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+.social-button {
+    position: fixed;
+    top: 20px;
+    right: 100px; /* Theme switcher'dan sola kaydır */
+    z-index: 1000;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.social-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.social-icon {
+    font-size: 18px;
+}
+
+.social-text {
+    font-family: 'Inter', sans-serif;
+    color: white;
+}
+
+/* Delete Button Styles */
+.delete-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Show delete button on card hover */
+.anime-card-wrapper:hover .delete-button {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Delete button hover effects */
+.delete-button:hover {
+    background: rgba(255, 107, 107, 0.9);
+    color: white;
+    border-color: rgba(255, 107, 107, 0.8);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.delete-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+/* Pulse animation for attention */
+.delete-button::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: rgba(255, 107, 107, 0.3);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.delete-button:hover::before {
+    opacity: 1;
+    transform: scale(1);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.1;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* Alternative danger theme */
+.delete-button.danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    border: none;
+    opacity: 0.9;
+}
+
+.delete-button.danger:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    transform: scale(1.15);
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+}
+
+/* Always visible variant */
+.delete-button.always-visible {
+    opacity: 0.6;
+    transform: scale(1);
+}
+
+.delete-button.always-visible:hover {
+    opacity: 1;
+}
+
+/* Compact mobile version */
+@media (max-width: 768px) {
+    .delete-button {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        top: 6px;
+        right: 6px;
+    }
+
+    /* Always show on mobile for better UX */
+    .delete-button {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+}
+
+/* Smooth entrance animation */
+.anime-card-wrapper {
+    position: relative;
+}
+
+.anime-card-wrapper .delete-button {
+    animation: slideInFromTop 0.3s ease-out;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Tooltip effect */
+.delete-button::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.delete-button:hover::after {
+    opacity: 1;
+}
+
+/* Glass morphism variant */
+.delete-button.glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.delete-button.glass:hover {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: rgba(255, 107, 107, 0.4);
+    backdrop-filter: blur(25px);
+}
+
+/* Neon glow effect */
+.delete-button.neon {
+    background: transparent;
+    border: 2px solid #ff6b6b;
+    color: #ff6b6b;
+    text-shadow: 0 0 5px #ff6b6b;
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+}
+
+.delete-button.neon:hover {
+    background: rgba(255, 107, 107, 0.1);
+    text-shadow: 0 0 10px #ff6b6b;
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+}
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+        .anime-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 8px; /* Bu değeri 15px'den 8px'e düşürün */
+}
+
+        .flip-hint {
+    font-size: 0.9rem;
+    color: #999;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    margin-top: 25px; /* Bu değeri artırın, örneğin 15px veya 20px */
+}
+        .anime-card:hover .flip-hint {
+            opacity: 1;
+        }
+
+
+        .mal-button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .mal-button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .mal-button:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .mal-logo {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .mal-message {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .image-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .favorites-section {
+                padding: 20px;
+            }
+
+            .anime-card-wrapper {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+.already-watched-btn {
+    bottom: 10px;
+    right: 10px;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    z-index: 25;
+}
+
+            .anime-rank {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .anime-card {
+        height: 250px; /* Bu değeri 350px'den 300px'e değiştirin */
+        width: 100%;
+    }
+
+            .card-front {
+                flex-direction: column;
+            }
+
+            .anime-image-container {
+                width: 100%;
+                height: 200px;
+            }
+
+            .anime-info {
+                padding: 20px;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .mal-button {
+                font-size: 0.9rem;
+                padding: 12px 25px;
+            }
+        }
+        .card-inner.flipped .anime-score,
+.card-inner.flipped .already-watched-btn {
+    display: none !important;
+}
+
+.anime-score.hidden,
+.already-watched-btn.hidden {
+    display: none !important;
+}
+
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.filter-btn {
+    background: rgba(25, 25, 46, 0.4);
+    border: 2px solid transparent;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-btn.active {
+    background: rgba(51,51,51,0.9);
+    color: #FF9A00;
+    border-color: rgba(140,140,140,0.9);
+}
+
+.filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+}
+
+.filter-icon {
+    font-size: 1rem;
+}
+
+.apply-filters-btn {
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    border: none;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+}
+
+.apply-filters-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+    .filter-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .filter-btn {
+        width: 200px;
+        justify-content: center;
+    }
+}
+
+.about-section {
+    margin-top: 60px;
+    padding: 40px 0;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(5px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.about-item {
+    text-align: left;
+}
+
+.about-item h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+}
+
+.about-item p {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+    font-weight: 300;
+}
+
+@media (max-width: 768px) {
+    .about-section {
+        margin-top: 40px;
+        padding: 30px 0;
+    }
+
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 0 15px;
+    }
+
+    .about-item {
+        text-align: center;
+    }
+
+    .about-item h3 {
+        font-size: 1.1rem;
+    }
+
+    .about-item p {
+        font-size: 0.9rem;
+    }
+}
+/* 1. Body background'unu değiştirin */
+body {
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 2. Page loader background'unu değiştirin */
+.page-loader {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 3. Favorites section'ın background'unu değiştirin */
+.favorites-section {
+    background: rgba(25, 25, 46, 0.95);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 4. Search input'un background'unu değiştirin */
+.search-input {
+    background: rgba(25, 25, 46, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 5. Anime dropdown'un background'unu değiştirin */
+.anime-dropdown {
+    background: rgba(25, 25, 46, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 6. Anime option hover effect'ini değiştirin */
+.anime-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 7. Card front background'unu değiştirin */
+.card-front {
+    background: rgba(25, 25, 46, 0.9);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 8. Anime info text color'unu değiştirin */
+.anime-info {
+    color: rgba(255, 255, 255, 0.9);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 9. Anime name color'unu değiştirin */
+.anime-name {
+    color: rgba(255, 255, 255, 0.95);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 10. Section title color'unu değiştirin */
+.section-title {
+    color: rgba(255, 255, 255, 0.9);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 11. Blacklist content background'unu değiştirin */
+.blacklist-content {
+    background: rgba(25, 25, 46, 0.95);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 12. Blacklist title color'unu değiştirin */
+.blacklist-title {
+    color: rgba(255, 255, 255, 0.9);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 13. Blacklist item background'unu değiştirin */
+.blacklist-item {
+    background: rgba(255, 255, 255, 0.05);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 14. Blacklist item hover effect'ini değiştirin */
+.blacklist-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 15. Blacklist item name color'unu değiştirin */
+.blacklist-item-name {
+    color: rgba(255, 255, 255, 0.9);
+    /* Diğer özellikler aynı kalacak */
+}
+
+
+
+/* 17. About section background'unu değiştirin */
+.about-section {
+    background: rgba(25, 25, 46, 0.2);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 18. Search input placeholder color'unu ekleyin */
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* 19. Anime image container background'unu değiştirin */
+.anime-image-container {
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 20. Theme color variants'ını güncelleyin */
+.theme-dark .theme-color {
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+}
+
+/* 21. Empty state color'unu değiştirin */
+.empty-state {
+    color: rgba(255, 255, 255, 0.5);
+    /* Diğer özellikler aynı kalacak */
+}
+
+/* 22. Flip hint color'unu değiştirin */
+.flip-hint {
+    color: rgba(255, 255, 255, 0.6);
+    /* Diğer özellikler aynı kalacak */
+}
+/* Custom Confirm Modal */
+.custom-confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-confirm-modal.show {
+    opacity: 1;
+}
+
+.custom-confirm-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.custom-confirm-modal.show .custom-confirm-content {
+    transform: scale(1);
+}
+
+.confirm-header h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: inherit;
+}
+
+.confirm-message p {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.confirm-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.confirm-btn.cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.confirm-btn.cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.confirm-btn.confirm {
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    color: white;
+}
+
+.confirm-btn.confirm:hover {
+    background: linear-gradient(45deg, #ffb347, #c9882b);
+    transform: translateY(-2px);
+}

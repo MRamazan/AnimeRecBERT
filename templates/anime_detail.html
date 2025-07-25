@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ anime.name }} - Anime Details</title>
+    <meta name="description" content="Details about {{ anime.name }}. Genres: {{ anime.genres | join(', ') }}">
+    <meta name="keywords" content="{{ anime.name }}, anime, {{ anime.genres | join(', ') }}">
+    
+    <!-- Open Graph meta tags -->
+    <meta property="og:title" content="{{ anime.name }} - Anime Details">
+    <meta property="og:description" content="Details about {{ anime.name }}. Genres: {{ anime.genres | join(', ') }}">
+    <meta property="og:type" content="video.movie">
+    <meta property="og:url" content="{{ request.url }}">
+    {% if anime.image_url %}
+    <meta property="og:image" content="{{ anime.image_url }}">
+    {% endif %}
+    
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ anime.name }} - Anime Details">
+    <meta name="twitter:description" content="Details about {{ anime.name }}. Genres: {{ anime.genres | join(', ') }}">
+    {% if anime.image_url %}
+    <meta name="twitter:image" content="{{ anime.image_url }}">
+    {% endif %}
+    
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json">
+        {{ structured_data|safe }}
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        /* Ana sayfa butonu */
+        .home-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .home-button:hover {
+            background: linear-gradient(135deg, #0056b3, #003d82);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+        
+        .home-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Home icon */
+        .home-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 60px; /* Home butonu için alan bırakıyoruz */
+        }
+        .anime-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .anime-image {
+            flex-shrink: 0;
+        }
+        .anime-image img {
+            width: 300px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .anime-info {
+            flex: 1;
+        }
+        .anime-title {
+            font-size: 2.5em;
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+        .genres {
+            margin: 20px 0;
+        }
+        .genre-tag {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        .summary-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .summary-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .summary-content {
+            color: #666;
+            font-style: italic;
+        }
+        .mal-link {
+            display: inline-block;
+            background: #2e51a2;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .similar-animes {
+            margin-top: 40px;
+        }
+        .similar-animes h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .similar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .similar-anime {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .similar-anime:hover {
+            transform: translateY(-5px);
+        }
+        .similar-anime img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        .similar-anime-info {
+            padding: 15px;
+        }
+        .similar-anime-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .home-button {
+                top: 10px;
+                left: 10px;
+                padding: 10px 16px;
+                font-size: 0.8em;
+            }
+            
+            .container {
+                margin-top: 80px;
+                padding: 15px;
+            }
+            
+            .anime-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .anime-image img {
+                width: 250px;
+                height: 350px;
+            }
+            .anime-title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ana sayfa butonu -->
+    <a href="https://www.animerecbert.online" class="home-button">
+        <svg class="home-icon" viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        AnimeRecBert
+    </a>
+
+    <div class="container">
+        <div class="anime-header">
+            <div class="anime-image">
+                {% if anime.image_url %}
+                    <img src="{{ anime.image_url }}" alt="{{ anime.name }} poster" loading="lazy">
+                {% else %}
+                    <div style="width: 300px; height: 400px; background: #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #666;">
+                        No Image Available
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="anime-info">
+                <h1 class="anime-title">{{ anime.name }}</h1>
+                
+                {% if anime.genres %}
+                <div class="genres">
+                    <strong>Genres:</strong>
+                    {% for genre in anime.genres %}
+                        <span class="genre-tag">{{ genre }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% if anime.mal_url %}
+                <a href="{{ anime.mal_url }}" target="_blank" class="mal-link">
+                    View on MyAnimeList
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Anime özeti kısmı (şimdilik boş) -->
+        <div class="summary-section">
+            <h3>Summary</h3>
+            <div class="summary-content">
+                <!-- Bu kısım şimdilik boş, sonradan doldurulacak -->
+                Summary will be added here in the future.
+            </div>
+        </div>
+        
+        <!-- Benzer animeler -->
+        {% if anime.similar_animes %}
+        <div class="similar-animes">
+            <h3>Similar Animes</h3>
+            <div class="similar-grid">
+                {% for similar in anime.similar_animes %}
+                <div class="similar-anime">
+                    {% if similar.image_url %}
+                        <img src="{{ similar.image_url }}" alt="{{ similar.name }} poster" loading="lazy">
+                    {% else %}
+                        <div style="width: 100%; height: 250px; background: #ddd; display: flex; align-items: center; justify-content: center; color: #666;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="similar-anime-info">
+                        <div class="similar-anime-title">{{ similar.name }}</div>
+                        {% if similar.genres %}
+                        <div style="font-size: 0.9em; color: #666;">
+                            {{ similar.genres[:3] | join(', ') }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
