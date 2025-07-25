@@ -389,8 +389,9 @@ class AnimeRecommendationSystem:
             with dataset_path.open('rb') as f:
                 self.dataset = pickle.load(f)
 
-            # Model'i yükle
+            print("31")
             self.model = model_factory(args)
+            print("3131")
             self.load_checkpoint()
 
             # Garbage collection
@@ -476,7 +477,7 @@ class AnimeRecommendationSystem:
             if not favorite_anime_ids:
                 return [], [], "Please add some favorite animes first!"
 
-            smap = self.dataset
+            smap = self.dataset["smap"]
             inverted_smap = {v: k for k, v in smap.items()}
 
             converted_ids = []
@@ -786,8 +787,8 @@ def main():
 
     try:
         images_path = "Data/id_to_url.json"
-        mal_urls_path = "Data/anime_to_malurl.json"
-        type_seq_path = "Data/anime_to_typenseq.json"
+        mal_urls_path = "Data/id_to_malurl.json"
+        type_seq_path = "Data/id_to_typenseq.json"
 
         if not os.path.exists(images_path):
             print(f"Warning: {images_path} not found. Images will not be displayed.")
@@ -796,8 +797,8 @@ def main():
             print(f"Warning: {mal_urls_path} not found. MAL links will not be available.")
 
         recommendation_system = AnimeRecommendationSystem(
-            "pretrained_bert.pth",
-            "dataset.pkl",
+            "Data/AnimeRatings54M/pretrained_bert.pth",
+            "Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl",
             "Data/animes.json",
             images_path,
             mal_urls_path,
