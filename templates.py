@@ -7,8 +7,8 @@ def set_template(args):
 
      args.dataset_code = 'AnimeRatings54M'
      args.min_rating = 7
-     args.min_uc = 5  # 10'dan 5'e düşür - anime dataset'inde daha az rating yapan kullanıcılar olabilir
-     args.min_sc = 5  # 10'dan 5'e düşür - anime'ler film kadar yaygın değil
+     args.min_uc = 10
+     args.min_sc = 10
      args.split = 'leave_one_out'
 
      args.dataloader_code = 'bert'
@@ -40,13 +40,13 @@ def set_template(args):
      args.model_code = 'bert'
      args.model_init_seed = 0
 
-     args.bert_dropout = 0.4  # 0.3'den 0.4'e artır - overfitting'i önlemek için
-     args.weight_decay = 5e-4  # 1e-3'den 5e-4'e düşür - daha az regularization
-     args.bert_hidden_units = 384  # 256'dan 384'e artır - daha karmaşık patterns için
-     args.bert_mask_prob = 0.15  # Aynı kalsın - standart BERT masking
-     args.bert_max_len = 128  # 128'den 200'e artır - anime fanları daha uzun sequence'ler yapabilir
-     args.bert_num_blocks = 3  # 2'den 3'e artır - daha derin model
-     args.bert_num_heads = 6  # 4'den 6'e artır - daha fazla attention capacity
+     args.bert_dropout = 0.3  # 0.3'den 0.4'e artır - overfitting'i önlemek için
+     args.weight_decay = 1e-3  # 1e-3'den 5e-4'e düşür - daha az regularization
+     args.bert_hidden_units = 256  
+     args.bert_mask_prob = 0.15 
+     args.bert_max_len = 128 
+     args.bert_num_blocks = 2  # 2'den 3'e artır - daha derin model
+     args.bert_num_heads = 4  # 4'den 6'e artır - daha fazla attention capacity
         
         
     
