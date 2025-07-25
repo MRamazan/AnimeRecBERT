@@ -109,7 +109,7 @@ python main_local.py --template train_bert --dataset Data/AnimeRatings54M/datase
 ```bash
 python inference_gui.py \
   -c Data/AnimeRatings54M/pretrained_bert.pth \
-  -d Data/AnimeRatings54M/dataset.pkl \
+  -d Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl \
   -a Data/AnimeRatings54M/animes.json \
   --inference True \
   --template train_bert        
