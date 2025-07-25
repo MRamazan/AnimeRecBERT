@@ -99,14 +99,17 @@ Install PyTorch from https://pytorch.org/get-started/locally/
 pip install -r requirements.txt
 ```
 
-### All Done, Start GUI
-Some model parameters depends on the dataloader statistics.
-Instead of setting these parameters as constants, the code processes and save the data as in training, but will only use mappings.
-This way, changes in the original data won't cause an error.
+### All Done, Start Inference
+#### Run website on local host
+```bash
+python main_local.py --template train_bert --dataset Data/AnimeRatings54M/dataset.pkl
+```
+
+#### Run PYQT App
 ```bash
 python inference_gui.py \
   -c Data/AnimeRatings54M/pretrained_bert.pth \
-  -d Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl \
+  -d Data/AnimeRatings54M/dataset.pkl \
   -a Data/AnimeRatings54M/animes.json \
   --inference True \
   --template train_bert        
