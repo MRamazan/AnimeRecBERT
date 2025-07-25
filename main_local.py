@@ -784,22 +784,6 @@ def main():
 
     args.num_items = 12689
 
-    def download_from_gdrive(file_id, output_path):
-        url = f"https://drive.google.com/uc?id={file_id}"
-        try:
-            print(f"Downloading: {file_id}")
-            gdown.download(url, output_path, quiet=False)
-            print(f"Downloaded: {output_path}")
-            return True
-        except Exception as e:
-            print(f"Error: {e}")
-            return False
-
-    for key, value in file_ids.items():
-        if os.path.isfile(value):
-            continue
-        download_from_gdrive(key, value)
-
     try:
         images_path = "Data/id_to_url.json"
         mal_urls_path = "Data/anime_to_malurl.json"
