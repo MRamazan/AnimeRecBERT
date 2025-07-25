@@ -100,10 +100,6 @@ pip install -r requirements.txt
 ```
 
 ### All Done, Start Inference
-#### Run website on local host
-```bash
-python main_local.py --template train_bert --dataset Data/AnimeRatings54M/dataset.pkl
-```
 
 #### Run PYQT App
 ```bash
