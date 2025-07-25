@@ -801,9 +801,9 @@ def main():
         download_from_gdrive(key, value)
 
     try:
-        images_path = "id_to_url.json"
-        mal_urls_path = "anime_to_malurl.json"
-        type_seq_path = "anime_to_typenseq.json"
+        images_path = "Data/id_to_url.json"
+        mal_urls_path = "Data/anime_to_malurl.json"
+        type_seq_path = "Data/anime_to_typenseq.json"
 
         if not os.path.exists(images_path):
             print(f"Warning: {images_path} not found. Images will not be displayed.")
@@ -814,11 +814,11 @@ def main():
         recommendation_system = AnimeRecommendationSystem(
             "pretrained_bert.pth",
             "dataset.pkl",
-            "animes.json",
+            "Data/animes.json",
             images_path,
             mal_urls_path,
             type_seq_path,
-            "id_to_genres.json"
+            "Data/id_to_genres.json"
         )
         print("Recommendation system initialized successfully!")
     except Exception as e:
