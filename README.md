@@ -23,7 +23,7 @@ www.animerecbert.online <br>
 https://github.com/MRamazan/AnimeRecBertWeb
 
 ## Metrics
-The model trained on a large-scale dataset with 560,000 users and 54 million ratings. Below are the Top-K recommendation metrics:
+Model trained on a large-scale dataset with 560,000 users and 54 million ratings. Below are the Top-K recommendation metrics:
 
 <table>
 <tr>
