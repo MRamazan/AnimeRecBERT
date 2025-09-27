@@ -14,9 +14,9 @@ This project provides a solid foundation for further development in personalized
 ### Kaggle Inference & Interactive Recommender
 In kaggle notebooks, full dataset used for training and inference instead of subset like in web demo. <br><br>
 
-**Interactive Recommender notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-inference <br>
+**Interactive Recommender notebook:** https://www.kaggle.com/code/ramazanturann/animerecommenderbert-inference <br>
 
-**Train notebook:** https://www.kaggle.com/code/tavuksuzdurum/animerecommenderbert-train <br>
+**Train notebook:** https://www.kaggle.com/code/ramazanturann/animerecommenderbert-train <br>
 
 ## Web Demo Available 🌐
 www.animerecbert.online <br> (may be down due to 512MB free ram limit)
@@ -80,7 +80,7 @@ venv\Scripts\activate
 #### For Linux
 ```bash
 curl -L -o Data/AnimeRatings54M/animeratings-mini-54m.zip \
-     https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
+     https://www.kaggle.com/api/v1/datasets/download/ramazanturann/animeratings-mini-54m
 
 unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
 ```
@@ -88,7 +88,7 @@ unzip Data/AnimeRatings54M/animeratings-mini-54m.zip -d Data/AnimeRatings54M/
 #### For Windows
 ```bash
 curl -L -o Data\AnimeRatings54M\animeratings-mini-54m.zip `
-     https://www.kaggle.com/api/v1/datasets/download/tavuksuzdurum/animeratings-mini-54m
+     https://www.kaggle.com/api/v1/datasets/download/ramazanturann/animeratings-mini-54m
 
 Expand-Archive -Path 'Data\AnimeRatings54M\animeratings-mini-54m.zip' -DestinationPath 'Data\AnimeRatings54M'
 ```
