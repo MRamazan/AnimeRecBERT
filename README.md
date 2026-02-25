@@ -19,8 +19,8 @@ In kaggle notebooks, full dataset used for training and inference instead of sub
 **Train notebook:** https://www.kaggle.com/code/ramazanturann/animerecommenderbert-train <br>
 
 ## Web Demo Available 🌐
-www.animerecbert.online (may be down due to 512MB free ram limit)<br>
-Huggingface Space:https://huggingface.co/spaces/mramazan/AnimeRecBERT<br>
+Web demo: www.animerecbert.online (may be down due to 512MB free ram limit)<br>
+Huggingface Space: https://huggingface.co/spaces/mramazan/AnimeRecBERT<br>
 https://github.com/MRamazan/AnimeRecBertWeb 
 
 ## Metrics
