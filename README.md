@@ -20,7 +20,8 @@ In kaggle notebooks, full dataset used for training and inference instead of sub
 
 ## Web Demo Available 🌐
 www.animerecbert.online (may be down due to 512MB free ram limit)<br>
-https://github.com/MRamazan/AnimeRecBertWeb
+Huggingface Space:https://huggingface.co/spaces/mramazan/AnimeRecBERT<br>
+https://github.com/MRamazan/AnimeRecBertWeb 
 
 ## Metrics
 Model trained on a large-scale dataset with 560,000 users and 54 million ratings. Below are the Top-K recommendation metrics:
