@@ -1,896 +1,817 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Recommendation System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='purpletheme.css') }}" id="theme-purple">
-    <link rel="preload" href="{{ url_for('static', filename='purpletheme.css') }}" as="style">
+from flask import Flask, render_template, request, jsonify, session, Response
+import sys
+import pickle
+import json
+import gc
+import weakref
+from pathlib import Path
+from utils import *
+from options import args
+from models import model_factory
+from flask_socketio import SocketIO, emit
+from datetime import datetime
+import random
+import re
+import xml.etree.ElementTree as ET
 
-    <style>
-        /* Critical CSS - Sayfa yükleme sırasında görünümü engellemek için */
-        html {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
+app = Flask(__name__)
+app.secret_key = '1903bjk'
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-        html.loaded {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Loading screen */
-        .page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        .page-loader.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loader-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Preload critical animations */
-        .preload-animations {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
+# Memory-efficient chat system
+class ChatManager:
+    def __init__(self, max_messages=100):  # Reduced from 300
+        self.messages = []
+        self.active_users = {}
+        self.max_messages = max_messages
     
+    def add_message(self, message):
+        self.messages.append(message)
+        if len(self.messages) > self.max_messages:
+            self.messages.pop(0)
+    
+    def get_messages(self):
+        return self.messages
+    
+    def add_user(self, sid, username):
+        self.active_users[sid] = {
+            'username': username,
+            'connected_at': datetime.now()
+        }
+    
+    def remove_user(self, sid):
+        return self.active_users.pop(sid, None)
+    
+    def get_user_count(self):
+        return len(self.active_users)
+    
+    def get_username(self, sid):
+        user = self.active_users.get(sid)
+        return user['username'] if user else None
+    
+    def update_username(self, sid, new_username):
+        if sid in self.active_users:
+            self.active_users[sid]['username'] = new_username
 
-        .theme-option:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(3px);
+chat_manager = ChatManager()
+
+def generate_username():
+    adjectives = ['Cool', 'Awesome', 'Swift', 'Bright', 'Happy', 'Smart', 'Kind', 'Brave', 'Calm', 'Epic', "Black"]
+    nouns = ['Otaku', 'Ninja', 'Samurai', 'Dragon', 'Phoenix', 'Tiger', 'Wolf', 'Eagle', 'Fox', 'Bear']
+    return f"{random.choice(adjectives)}{random.choice(nouns)}{random.randint(100, 999)}"
+
+def clean_message(message):
+    # HTML tag'leri temizle
+    message = re.sub(r'<[^>]*>', '', message)
+    # Uzunluk kontrolü
+    if len(message) > 500:
+        message = message[:500]
+    return message.strip()
+
+# Lazy loading için wrapper class
+class LazyDict:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self._data = None
+        self._loaded = False
+    
+    def _load_data(self):
+        if not self._loaded:
+            try:
+                with open(self.file_path, "r", encoding="utf-8") as file:
+                    self._data = json.load(file)
+                self._loaded = True
+            except Exception as e:
+                print(f"Warning: Could not load {self.file_path}: {str(e)}")
+                self._data = {}
+                self._loaded = True
+    
+    def get(self, key, default=None):
+        self._load_data()
+        return self._data.get(key, default)
+    
+    def __contains__(self, key):
+        self._load_data()
+        return key in self._data
+    
+    def items(self):
+        self._load_data()
+        return self._data.items()
+    
+    def keys(self):
+        self._load_data()
+        return self._data.keys()
+    
+    def __len__(self):
+        self._load_data()
+        return len(self._data)
+
+# Sitemap route'ları
+@app.route('/sitemap.xml')
+def sitemap():
+    """Dinamik sitemap.xml oluşturur"""
+    try:
+        # XML root element
+        urlset = ET.Element('urlset')
+        urlset.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+        urlset.set('xmlns:image', 'http://www.google.com/schemas/sitemap-image/1.1')
+
+        # Base URL
+        base_url = request.url_root.rstrip('/')
+        current_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Ana sayfa
+        url = ET.SubElement(urlset, 'url')
+        ET.SubElement(url, 'loc').text = f'{base_url}/'
+        ET.SubElement(url, 'lastmod').text = current_date
+        ET.SubElement(url, 'changefreq').text = 'daily'
+        ET.SubElement(url, 'priority').text = '1.0'
+
+        # Chat sayfası
+        url = ET.SubElement(urlset, 'url')
+        ET.SubElement(url, 'loc').text = f'{base_url}/chat'
+        ET.SubElement(url, 'lastmod').text = current_date
+        ET.SubElement(url, 'changefreq').text = 'hourly'
+        ET.SubElement(url, 'priority').text = '0.8'
+
+        # Anime sayfaları (sadece ilk 50 anime - SEO için)
+        if recommendation_system and recommendation_system.id_to_anime:
+            anime_count = 0
+            for anime_id, anime_data in recommendation_system.id_to_anime.items():
+                if anime_count >= 50:  # Reduced from 100
+                    break
+
+                try:
+                    anime_name = anime_data[0] if isinstance(anime_data, list) and len(anime_data) > 0 else str(anime_data)
+                    safe_name = anime_name.replace(' ', '-').replace('/', '-').replace('?', '').replace('&', 'and')
+                    safe_name = re.sub(r'[^\w\-]', '', safe_name)
+
+                    url = ET.SubElement(urlset, 'url')
+                    ET.SubElement(url, 'loc').text = f'{base_url}/anime/{anime_id}/{safe_name}'
+                    ET.SubElement(url, 'lastmod').text = current_date
+                    ET.SubElement(url, 'changefreq').text = 'weekly'
+                    ET.SubElement(url, 'priority').text = '0.6'
+
+                    # Sadece gerekli durumlarda resim URL'si ekle
+                    if anime_count < 20:  # Sadece ilk 20 anime için resim
+                        image_url = recommendation_system.get_anime_image_url(int(anime_id))
+                        if image_url:
+                            image_elem = ET.SubElement(url, 'image:image')
+                            ET.SubElement(image_elem, 'image:loc').text = image_url
+                            ET.SubElement(image_elem, 'image:title').text = anime_name
+                            ET.SubElement(image_elem, 'image:caption').text = f'Poster image for {anime_name}'
+
+                    anime_count += 1
+                except Exception as e:
+                    print(f"Error processing anime {anime_id}: {e}")
+                    continue
+
+        # XML'i string'e çevir
+        xml_str = ET.tostring(urlset, encoding='unicode')
+        xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        full_xml = xml_declaration + xml_str
+
+        return Response(full_xml, mimetype='application/xml')
+
+    except Exception as e:
+        print(f"Sitemap generation error: {e}")
+        return Response(
+            '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>',
+            mimetype='application/xml')
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Robots.txt dosyası"""
+    robots_content = f"""User-agent: *
+Allow: /
+Allow: /chat
+
+Sitemap: {request.url_root.rstrip('/')}/sitemap.xml
+"""
+    return Response(robots_content, mimetype='text/plain')
+
+@app.route('/anime/<int:anime_id>/<path:anime_name>')
+def anime_detail(anime_id, anime_name):
+    """Anime detay sayfası (SEO için)"""
+    if not recommendation_system or str(anime_id) not in recommendation_system.id_to_anime:
+        return render_template('error.html', error="Anime not found"), 404
+
+    anime_data = recommendation_system.id_to_anime.get(str(anime_id))
+    anime_name = anime_data[0] if isinstance(anime_data, list) and len(anime_data) > 0 else str(anime_data)
+
+    # Anime bilgilerini lazy loading ile al
+    image_url = recommendation_system.get_anime_image_url(anime_id)
+    mal_url = recommendation_system.get_anime_mal_url(anime_id)
+    genres = recommendation_system.get_anime_genres(anime_id)
+    anime_type = recommendation_system._get_type(anime_id)
+
+    # Benzer animeler öner (sadece 5 tane)
+    similar_animes = []
+    try:
+        recommendations, _, _ = recommendation_system.get_recommendations([anime_id], num_recommendations=5)
+        similar_animes = recommendations
+    except:
+        pass
+
+    anime_info = {
+        'id': anime_id,
+        'name': anime_name,
+        'image_url': image_url,
+        'mal_url': mal_url,
+        'genres': genres,
+        'similar_animes': similar_animes,
+        'type': anime_type
+    }
+
+    # JSON-LD structured data oluştur
+    structured_data = generate_anime_structured_data(anime_info)
+
+    return render_template('anime_detail.html', anime=anime_info, structured_data=json.dumps(structured_data))
+
+def generate_anime_structured_data(anime_info):
+    """Anime için JSON-LD structured data oluşturur"""
+    structured_data = {
+        "@context": "https://schema.org",
+        "@type": anime_info["type"],
+        "name": anime_info['name'],
+        "url": f"{request.url_root.rstrip('/')}/anime/{anime_info['id']}/{anime_info['name'].replace(' ', '-')}"
+    }
+
+    if anime_info['genres']:
+        structured_data["genre"] = anime_info['genres']
+
+    if anime_info['image_url']:
+        structured_data["image"] = anime_info['image_url']
+
+    if anime_info['mal_url']:
+        structured_data["sameAs"] = anime_info['mal_url']
+
+    return structured_data
+
+@app.route('/sitemap-index.xml')
+def sitemap_index():
+    """Sitemap index dosyası"""
+    try:
+        sitemapindex = ET.Element('sitemapindex')
+        sitemapindex.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+
+        base_url = request.url_root.rstrip('/')
+        current_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Ana sitemap
+        sitemap = ET.SubElement(sitemapindex, 'sitemap')
+        ET.SubElement(sitemap, 'loc').text = f'{base_url}/sitemap.xml'
+        ET.SubElement(sitemap, 'lastmod').text = current_date
+
+        xml_str = ET.tostring(sitemapindex, encoding='unicode')
+        xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        full_xml = xml_declaration + xml_str
+
+        return Response(full_xml, mimetype='application/xml')
+
+    except Exception as e:
+        print(f"Sitemap index generation error: {e}")
+        return Response(
+            '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>',
+            mimetype='application/xml')
+
+@app.route('/chat')
+def chat():
+    return render_template('chat.html')
+
+# SocketIO event'leri
+@socketio.on('connect')
+def on_connect():
+    username = generate_username()
+    chat_manager.add_user(request.sid, username)
+
+    # Kullanıcıya mevcut mesajları gönder
+    emit('chat_history', chat_manager.get_messages())
+
+    # Kullanıcı katıldı mesajı
+    join_message = {
+        'username': 'System',
+        'message': f'{username} joined the chat',
+        'timestamp': datetime.now().strftime('%H:%M'),
+        'type': 'system'
+    }
+
+    chat_manager.add_message(join_message)
+    emit('new_message', join_message, broadcast=True)
+    emit('user_count', chat_manager.get_user_count(), broadcast=True)
+
+@socketio.on('disconnect')
+def on_disconnect():
+    user = chat_manager.remove_user(request.sid)
+    if user:
+        username = user['username']
+        leave_message = {
+            'username': 'System',
+            'message': f'{username} left the chat',
+            'timestamp': datetime.now().strftime('%H:%M'),
+            'type': 'system'
         }
 
-        .theme-option.active {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+        chat_manager.add_message(leave_message)
+        emit('new_message', leave_message, broadcast=True)
+        emit('user_count', chat_manager.get_user_count(), broadcast=True)
 
-        .theme-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
+@socketio.on('send_message')
+def handle_message(data):
+    username = chat_manager.get_username(request.sid)
+    if not username:
+        return
 
-        .theme-option.active .theme-color {
-            border-color: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-        }
+    message = clean_message(data.get('message', ''))
+    if not message:
+        return
 
-        .theme-purple .theme-color {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+    message_obj = {
+        'username': username,
+        'message': message,
+        'timestamp': datetime.now().strftime('%H:%M'),
+        'type': 'user'
+    }
 
-        .theme-green .theme-color {
-            background: linear-gradient(45deg, #4caf50, #2e7d32);
-        }
+    chat_manager.add_message(message_obj)
+    emit('new_message', message_obj, broadcast=True)
 
-        .theme-orange .theme-color {
-            background: linear-gradient(45deg, #ffa500, #ff4500);
-        }
-       
+@socketio.on('change_username')
+def handle_username_change(data):
+    old_username = chat_manager.get_username(request.sid)
+    if not old_username:
+        return
 
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            .theme-switcher {
-                top: 15px;
-                right: 15px;
-                padding: 6px;
-            }
+    new_username = clean_message(data.get('username', ''))
+    if not new_username or len(new_username) < 2:
+        return
 
-            .theme-switcher-toggle {
-                font-size: 18px;
-                padding: 6px;
-            }
+    chat_manager.update_username(request.sid, new_username)
 
-            .theme-options {
-                right: -20px;
-                min-width: 130px;
-            }
+    change_message = {
+        'username': 'System',
+        'message': f'{old_username} changed name to {new_username}',
+        'timestamp': datetime.now().strftime('%H:%M'),
+        'type': 'system'
+    }
 
-            .theme-option {
-                font-size: 13px;
-                padding: 6px 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Page Loader -->
-    <div class="page-loader" id="pageLoader">
-        <div class="loader-spinner"></div>
-    </div>
+    chat_manager.add_message(change_message)
+    emit('new_message', change_message, broadcast=True)
+    emit('username_changed', {'username': new_username})
 
-    <!-- Preload animations -->
-    <div class="preload-animations">
-        <div class="theme-switcher-toggle"></div>
-        <div class="theme-option"></div>
-        <div class="anime-card"></div>
-    </div>
+class AnimeRecommendationSystem:
+    def __init__(self, checkpoint_path, dataset_path, animes_path, images_path, mal_urls_path, type_seq_path, genres_path):
+        self.model = None
+        self.dataset = None
+        self.checkpoint_path = checkpoint_path
+        self.dataset_path = dataset_path
+        self.animes_path = animes_path
+        
+        # Lazy loading ile memory optimization
+        self.id_to_anime = LazyDict(animes_path)
+        self.id_to_url = LazyDict(images_path)
+        self.id_to_mal_url = LazyDict(mal_urls_path)
+        self.id_to_type_seq = LazyDict(type_seq_path)
+        self.id_to_genres = LazyDict(genres_path)
+        
+        # Cache için weak reference kullan
+        self._cache = {}
+        
+        self.load_model_and_data()
 
+    def load_model_and_data(self):
+        try:
+            print("Loading model and data...")
+            args.bert_max_len = 128
 
-    <button class="back-button" onclick="showFavorites()">← Back to Favorites</button>
+            # Dataset'i yükle
+            dataset_path = Path(self.dataset_path)
+            with dataset_path.open('rb') as f:
+                self.dataset = pickle.load(f)
 
-    <div class="container">
-        <div class="header">
-            <h1>Just one episode...</h1>
-            <p>Discover your next favorite anime</p>
-        </div>
+            print("31")
+            self.model = model_factory(args)
+            print("3131")
+            self.load_checkpoint()
 
-        <!-- Favorites Section -->
-        <div class="favorites-section" id="favoritesSection">
-            <h2 class="section-title">Select Your Favorite Animes</h2>
+            # Garbage collection
+            gc.collect()
+            print("Model loaded successfully!")
 
-           <div class="search-container" style="position: relative;">
-  <input type="text" class="search-input" id="animeSearch" placeholder="Search for an anime..." autocomplete="off">
-  <button class="blacklist-button" id="blacklistButton" onclick="openBlacklistModal()" title="Manage Blacklist">
-    🗑️
-    <span class="blacklist-counter" id="blacklistCounter">0</span>
-</button>
-               <div class="blacklist-modal" id="blacklistModal">
-    <div class="blacklist-content">
-        <div class="blacklist-header">
-            <h2 class="blacklist-title">Blacklisted Animes</h2>
-            <button class="blacklist-close" onclick="closeBlacklistModal()">×</button>
-        </div>
-        <div class="blacklist-list" id="blacklistList"></div>
-        <div class="blacklist-actions">
-            <button class="clear-blacklist-btn" onclick="clearBlacklist()">Clear All Blacklist</button>
-        </div>
-    </div>
-</div>
-  <!-- Modern SVG ikonu -->
-  <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-       style="width: 20px; height: 20px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #888;">
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
+        except Exception as e:
+            print(f"Error loading model: {str(e)}")
+            raise e
 
-  <div class="anime-dropdown" id="animeDropdown"></div>
-</div>
+    def load_checkpoint(self):
+        try:
+            with open(self.checkpoint_path, 'rb') as f:
+                checkpoint = torch.load(f, map_location='cpu', weights_only=False)
+            self.model.load_state_dict(checkpoint['model_state_dict'])
+            self.model.eval()
+            
+            # Checkpoint'i bellekten temizle
+            del checkpoint
+            gc.collect()
+            
+        except Exception as e:
+            raise Exception(f"Failed to load checkpoint from {self.checkpoint_path}: {str(e)}")
 
+    def get_anime_genres(self, anime_id):
+        genres = self.id_to_genres.get(str(anime_id), [])
+        return [genre.title() for genre in genres] if genres else []
 
-            <div class="favorites-list" id="favoritesList">
-                <div class="empty-state">No favorites selected yet. Search and add some animes!</div>
-            </div>
+    def get_all_animes(self):
+        """Tüm anime listesini döndürür - cache kullanır"""
+        cache_key = 'all_animes'
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+        
+        animes = []
+        # Sadece gerekli durumlarda yükle
+        for k, v in list(self.id_to_anime.items())[:1000]:  # İlk 1000 anime
+            anime_name = v[0] if isinstance(v, list) and len(v) > 0 else str(v)
+            animes.append((int(k), anime_name))
+        
+        animes.sort(key=lambda x: x[1])
+        self._cache[cache_key] = animes
+        return animes
 
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="getRecommendations()">Get Recommendations</button>
-                <button class="btn btn-secondary" onclick="clearFavorites()">Clear All</button>
-            </div>
-        </div>
+    def get_anime_image_url(self, anime_id):
+        return self.id_to_url.get(str(anime_id), None)
 
-        <!-- Recommendations Section -->
+    def get_anime_mal_url(self, anime_id):
+        return self.id_to_mal_url.get(str(anime_id), None)
 
-        <div class="recommendations-section" id="recommendationsSection">
-            <div class="favorites-section">
-                <h2 class="section-title">Recommended for You</h2>
-                <div class="filter-container">
-                    <div class="filter-buttons">
-                        <button class="filter-btn" data-filter="show_sequels" onclick="toggleFilter(this)">Sequels</button>
-                        <button class="filter-btn active" data-filter="show_movies" onclick="toggleFilter(this)">Movies</button>
-                        <button class="filter-btn active" data-filter="show_tv" onclick="toggleFilter(this)">TV Series</button>
-                        <button class="filter-btn" data-filter="show_ova" onclick="toggleFilter(this)">OVA/ONA/SPECIAL</button>
-                    </div>
-                    <button class="apply-filters-btn" onclick="applyFilters()">Apply Filters</button>
-                </div>
-                <div class="recommendations-grid" id="recommendationsGrid"></div>
-            </div>
-        </div>
+    def get_filtered_anime_pool(self, filters):
+        """Filtrelere göre anime havuzunu önceden filtreler"""
+        if not filters:
+            return None
 
-        <div class="about-section" id="aboutSection">
-            <div class="about-content">
-                <div class="about-item">
-                    <h3>About the Model</h3>
-                    <p>Despite its strong performance, I couldn't find any anime recommendation websites using a BERT-based recommender system. This recommendation system uses a BERT transformer specifically for anime recommendations. Unlike other systems, it takes only users' favorite anime titles as input, rather than ratings. I believe the BERT model handled the recommendation task very well, including effectively addressing the cold start problem by generating meaningful recommendations even with limited user data.</p>
-                </div>
+        if filters.get('show_hentai') and len([k for k, v in filters.items() if v]) == 1:
+            hentai_animes = []
+            # Sadece gerekli verileri kontrol et
+            for anime_id_str in list(self.id_to_anime.keys())[:500]:  # Limit
+                anime_id = int(anime_id_str)
+                if self._is_hentai(anime_id):
+                    hentai_animes.append(anime_id)
+            return hentai_animes
 
-                <div class="about-item">
-                    <h3>Purpose</h3>
-                    <p>This project was developed purely for entertainment, with the aim of helping people discover new anime and enjoy their viewing experience. At the same time, it serves as an experiment — exploring how modern NLP models like BERT can be applied to reimagine recommendation systems. By shifting the focus from numeric ratings to users' actual favorites, the model seeks to capture deeper patterns of preference and better reflect individual taste.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+        return None
 
-    <script>
-        let allAnimes = [];
-        let malLogoUrl = '';
-        let currentTheme = 'purple';
+    def _is_hentai(self, anime_id):
+        """Anime'nin hentai olup olmadığını kontrol eder"""
+        type_seq_info = self.id_to_type_seq.get(str(anime_id))
+        if not type_seq_info or len(type_seq_info) < 3:
+            return False
+        return type_seq_info[2]
 
-        function initializePage() {
-            const pageLoader = document.getElementById('pageLoader');
-            const html = document.documentElement;
+    def _get_type(self, anime_id):
+        """Anime tipini döndürür"""
+        type_seq_info = self.id_to_type_seq.get(str(anime_id))
+        if not type_seq_info or len(type_seq_info) < 2:
+            return "Unknown"
+        return type_seq_info[1]
 
-            html.classList.add('loaded');
+    def get_recommendations(self, favorite_anime_ids, num_recommendations=20, filters=None):  # Reduced from 40
+        try:
+            if not favorite_anime_ids:
+                return [], [], "Please add some favorite animes first!"
 
-            setTimeout(() => {
-                pageLoader.classList.add('hidden');
-                setTimeout(() => {
-                    pageLoader.style.display = 'none';
-                }, 500);
-            }, 300);
-        }
+            smap = self.dataset["smap"]
+            inverted_smap = {v: k for k, v in smap.items()}
 
-        function preloadCriticalResources() {
-            const themes = ['purple'];
-            themes.forEach(theme => {
-                const link = document.createElement('link');
-                link.rel = 'preload';
-                link.as = 'style';
-                link.href = `/static/${theme}theme.css`;
-                document.head.appendChild(link);
-            });
+            converted_ids = []
+            for anime_id in favorite_anime_ids:
+                if anime_id in smap:
+                    converted_ids.append(smap[anime_id])
 
-     
-        }
+            if not converted_ids:
+                return [], [], "None of the selected animes are in the model vocabulary!"
 
-        function toggleThemeOptions() {
-            const themeOptions = document.getElementById('themeOptions');
-            themeOptions.classList.toggle('show');
-        }
+            # Hentai filtresi özel durumu
+            filtered_pool = self.get_filtered_anime_pool(filters)
+            if filtered_pool is not None:
+                return self._get_recommendations_from_pool(favorite_anime_ids, filtered_pool, num_recommendations, filters)
 
+            # Normal öneriler
+            target_len = 128
+            padded = converted_ids + [0] * (target_len - len(converted_ids))
+            input_tensor = torch.tensor(padded, dtype=torch.long).unsqueeze(0)
 
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.theme-switcher')) {
-                document.getElementById('themeOptions').classList.remove('show');
-            }
-        });
+            max_predictions = min(75, len(inverted_smap))  # Reduced from 125
 
+            with torch.no_grad():
+                logits = self.model(input_tensor)
+                last_logits = logits[:, -1, :]
+                top_scores, top_indices = torch.topk(last_logits, k=max_predictions, dim=1)
 
-        document.addEventListener('DOMContentLoaded', function() {
-            initializePage();
-            preloadCriticalResources();
-            loadBlacklist();
+            recommendations = []
+            scores = []
 
-            loadSavedTheme();
-            loadFavorites();
-            loadMalLogo();
+            for idx, score in zip(top_indices.numpy()[0], top_scores.detach().numpy()[0]):
+                if idx in inverted_smap:
+                    anime_id = inverted_smap[idx]
 
-            const searchInput = document.getElementById('animeSearch');
-            const dropdown = document.getElementById('animeDropdown');
+                    if anime_id in favorite_anime_ids:
+                        continue
 
-           
-            let searchTimeout;
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                const query = this.value.trim();
+                    if str(anime_id) in self.id_to_anime:
+                        # Filtreleme kontrolü
+                        if filters and not self._should_include_anime(anime_id, filters):
+                            continue
 
-                searchTimeout = setTimeout(() => {
-                    if (query.length > 0) {
-                        searchAnimes(query);
-                    } else {
-                        hideDropdown();
-                    }
-                }, 300); 
-            });
+                        anime_data = self.id_to_anime.get(str(anime_id))
+                        anime_name = anime_data[0] if isinstance(anime_data, list) and len(anime_data) > 0 else str(anime_data)
+                        
+                        # Lazy loading ile image ve mal url al
+                        image_url = self.get_anime_image_url(anime_id)
+                        mal_url = self.get_anime_mal_url(anime_id)
 
-         
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.search-container')) {
-                    hideDropdown();
-                }
-            });
-        });
+                        recommendations.append({
+                            'id': anime_id,
+                            'name': anime_name,
+                            'score': float(score),
+                            'image_url': image_url,
+                            'mal_url': mal_url,
+                            'genres': self.get_anime_genres(anime_id)
+                        })
+                        scores.append(float(score))
 
-       
-        async function loadMalLogo() {
-            try {
-                const cachedLogo = localStorage.getItem('malLogoUrl');
-                if (cachedLogo) {
-                    malLogoUrl = cachedLogo;
-                    return;
-                }
+                        if len(recommendations) >= num_recommendations:
+                            break
 
-                const response = await fetch('/api/mal_logo');
-                const data = await response.json();
-                if (data.success) {
-                    malLogoUrl = data.logo_url;
-                    localStorage.setItem('malLogoUrl', malLogoUrl);
-                }
-            } catch (error) {
-                console.error('Error loading MAL logo:', error);
-            }
-        }
+            # Memory cleanup
+            del logits, last_logits, top_scores, top_indices
+            gc.collect()
 
-        let searchCache = new Map();
-        async function searchAnimes(query) {
-            try {
-                
-                if (searchCache.has(query)) {
-                    showDropdown(searchCache.get(query));
-                    return;
-                }
+            return recommendations, scores, f"Found {len(recommendations)} recommendations!"
 
-                const response = await fetch(`/api/search_animes?q=${encodeURIComponent(query)}`);
-                const animes = await response.json();
+        except Exception as e:
+            return [], [], f"Error during prediction: {str(e)}"
 
-             
-                searchCache.set(query, animes);
+    def _get_recommendations_from_pool(self, favorite_anime_ids, anime_pool, num_recommendations, filters):
+        """Önceden filtrelenmiş anime havuzundan öneriler alır"""
+        try:
+            smap = self.dataset
+            converted_ids = []
+            for anime_id in favorite_anime_ids:
+                if anime_id in smap:
+                    converted_ids.append(smap[anime_id])
 
-               
-                if (searchCache.size > 50) {
-                    const firstKey = searchCache.keys().next().value;
-                    searchCache.delete(firstKey);
-                }
+            if not converted_ids:
+                return [], [], "None of the selected animes are in the model vocabulary!"
 
-                showDropdown(animes);
-            } catch (error) {
-                console.error('Error searching animes:', error);
-            }
-        }
+            target_len = 128
+            padded = converted_ids + [0] * (target_len - len(converted_ids))
+            input_tensor = torch.tensor(padded, dtype=torch.long).unsqueeze(0)
 
-       
-        function showDropdown(animes) {
-            const dropdown = document.getElementById('animeDropdown');
+            with torch.no_grad():
+                logits = self.model(input_tensor)
+                last_logits = logits[:, -1, :]
 
-           
-            requestAnimationFrame(() => {
-                dropdown.innerHTML = '';
-                dropdown.style.display = 'block';
+            # Anime havuzundaki her anime için skor hesapla
+            anime_scores = []
+            for anime_id in anime_pool:
+                if anime_id in favorite_anime_ids:
+                    continue
 
-                
-                const fragment = document.createDocumentFragment();
+                if anime_id in smap:
+                    model_id = smap[anime_id]
+                    if model_id < last_logits.shape[1]:
+                        score = last_logits[0, model_id].item()
+                        anime_scores.append((anime_id, score))
 
-                if (animes.length === 0) {
-                    const option = document.createElement('div');
-                    option.className = 'anime-option';
-                    option.textContent = 'No animes found';
-                    fragment.appendChild(option);
-                } else {
-                    animes.slice(0, 30).forEach(anime => {
-                        const option = document.createElement('div');
-                        option.className = 'anime-option';
-                        option.textContent = anime[1];
-                        option.onclick = () => addToFavorites(anime[0], anime[1]);
-                        fragment.appendChild(option);
-                    });
-                }
+            # Skorlara göre sırala
+            anime_scores.sort(key=lambda x: x[1], reverse=True)
 
-                dropdown.appendChild(fragment);
-
-             
-                setTimeout(() => {
-                    dropdown.classList.add('show');
-                }, 50);
-            });
-        }
-
-        function hideDropdown() {
-            const dropdown = document.getElementById('animeDropdown');
-            dropdown.classList.remove('show');
-
-            setTimeout(() => {
-                dropdown.style.display = 'none';
-                dropdown.innerHTML = '';
-            }, 300);
-        }
-
-        async function addToFavorites(animeId, animeName) {
-            try {
-                const response = await fetch('/api/add_favorite', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        anime_id: animeId,
-                        anime_name: animeName
+            recommendations = []
+            for anime_id, score in anime_scores[:num_recommendations]:
+                if str(anime_id) in self.id_to_anime:
+                    anime_data = self.id_to_anime.get(str(anime_id))
+                    anime_name = anime_data[0] if isinstance(anime_data, list) and len(anime_data) > 0 else str(anime_data)
+                    
+                    recommendations.append({
+                        'id': anime_id,
+                        'name': anime_name,
+                        'score': float(score),
+                        'image_url': self.get_anime_image_url(anime_id),
+                        'mal_url': self.get_anime_mal_url(anime_id),
+                        'genres': self.get_anime_genres(anime_id)
                     })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    loadFavorites();
-                    document.getElementById('animeSearch').value = '';
-                    hideDropdown();
-                } else {
-                    showMessage("Error", 'error');
-                }
-            } catch (error) {
-                console.error('Error adding favorite:', error);
-                showMessage('Error adding favorite', 'error');
-            }
-        }
-
-        async function removeFromFavorites(animeId) {
-            try {
-                const response = await fetch('/api/remove_favorite', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        anime_id: animeId,
-
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    loadFavorites();
-                } else {
-                    showMessage("Error", 'error');
-                }
-            } catch (error) {
-                console.error('Error removing favorite:', error);
-            }
-        }
-
-        async function removeFromFavorites(animeId) {
-            try {
-                const response = await fetch('/api/remove_favorite', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        anime_id: animeId,
-
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    loadFavorites();
-                } else {
-                    showMessage("Error", 'error');
-                }
-            } catch (error) {
-                console.error('Error removing favorite:', error);
-            }
-        }
-
-        async function loadFavorites() {
-            try {
-                const response = await fetch('/api/get_favorites');
-                const favorites = await response.json();
-                displayFavorites(favorites);
-            } catch (error) {
-                console.error('Error loading favorites:', error);
-            }
-        }
-
-        function displayFavorites(favorites) {
-            const favoritesList = document.getElementById('favoritesList');
-
-            requestAnimationFrame(() => {
-                if (favorites.length === 0) {
-                    favoritesList.innerHTML = '<div class="empty-state">No favorites selected yet. Search and add some animes!</div>';
-                } else {
-                    const fragment = document.createDocumentFragment();
-                    favorites.forEach(anime => {
-                        const div = document.createElement('div');
-                        div.className = 'favorite-tag';
-                        div.innerHTML = `
-                            <span>${anime.name}</span>
-                            <button class="remove-btn" onclick="removeFromFavorites(${anime.id})">×</button>
-                        `;
-                        fragment.appendChild(div);
-                    });
-                    favoritesList.innerHTML = '';
-                    favoritesList.appendChild(fragment);
-                }
-            });
-        }
-
-        async function clearFavorites() {
-            try {
-                const response = await fetch('/api/clear_favorites', {
-                    method: 'POST'
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    loadFavorites();
-                }
-            } catch (error) {
-                console.error('Error clearing favorites:', error);
-            }
-        }
-
-        async function getRecommendations() {
-    const recommendationsSection = document.getElementById('recommendationsSection');
-    const favoritesSection = document.getElementById('favoritesSection');
-    const backButton = document.querySelector('.back-button');
-    const recommendationsGrid = document.getElementById('recommendationsGrid');
-
-    recommendationsGrid.innerHTML = `
-        <div class="loading">
-            <div class="spinner"></div>
-            <div>Getting your recommendations...</div>
-        </div>
-    `;
-
-    favoritesSection.style.display = 'none';
-    recommendationsSection.style.display = 'block';
-    backButton.style.display = 'block';
-
-    try {
-        const response = await fetch('/api/get_recommendations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                filters: currentFilters,
-                blacklisted_animes: blacklistedAnimes.map(anime => anime.id) 
-            })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            displayRecommendations(result.recommendations);
-        } else {
-            recommendationsGrid.innerHTML = `
-                <div class="loading">
-                    <div style="color: #ff6b6b;">${result.message}</div>
-                </div>
-            `;
-        }
-    } catch (error) {
-        console.error('Error getting recommendations:', error);
-        recommendationsGrid.innerHTML = `
-            <div class="loading">
-                <div style="color: #ff6b6b;">Error getting recommendations</div>
-            </div>
-        `;
-    }
-}
-
-        function displayRecommendations(recommendations) {
-    const recommendationsGrid = document.getElementById('recommendationsGrid');
-
-    if (recommendations.length === 0) {
-        recommendationsGrid.innerHTML = '<div class="loading">No recommendations found</div>';
-        return;
-    }
-
-    requestAnimationFrame(() => {
-        const fragment = document.createDocumentFragment();
-
-        recommendations.forEach((anime, index) => {
-            const imageElement = anime.image_url
-                ? `<img src="${anime.image_url}" alt="${anime.name}" class="anime-image" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
-                : '';
-
-            const placeholderElement = anime.image_url
-                ? `<div class="no-image-placeholder" style="display: none;">🎌</div>`
-                : `<div class="no-image-placeholder">🎌</div>`;
-
-            const malButton = anime.mal_url
-                ? `<a href="${anime.mal_url}" target="_blank" class="mal-button">
-                    ${malLogoUrl ? `<img src="${malLogoUrl}" alt="MAL" class="mal-logo">` : '🔗'}
-                    View on MyAnimeList
-                   </a>`
-                : `<div class="mal-message">MyAnimeList link not available</div>`;
-
-            const genresElementFront = anime.genres && anime.genres.length > 0
-                ? `<div class="genres-container-front">
-                    ${anime.genres.slice(0, 3).map(genre => `<span class="genre-tag-front">${genre}</span>`).join('')}
-                   </div>`
-                : '';
-
-            const div = document.createElement('div');
-            div.className = 'anime-card-wrapper';
-            div.style.animationDelay = `${index * 0.1}s`;
-            div.setAttribute('data-anime-id', anime.id);
-            div.innerHTML = `
-                <button class="delete-button" onclick="deleteAnimeCard(event, ${anime.id})" title="Remove from recommendations">
-                    🗑️
-                </button>
-                <div class="anime-rank"></div>
-                <div class="anime-card" onclick="flipCard(this)">
-                    <div class="card-inner">
-                        <div class="card-front">
-                            <div class="anime-image-container">
-                                ${imageElement}
-                                ${placeholderElement}
-                            </div>
-                            <div class="anime-info">
-                                <div class="anime-name">${anime.name}</div>
-                                <div class="anime-bottom-section">
-                                    ${genresElementFront}
-                                    <button class="already-watched-btn" onclick="addToFavoritesFromRecommendations(event, ${anime.id}, '${anime.name.replace(/'/g, "\\'")}')">
-                                        Already Watched & Liked
-                                    </button>
-                                </div>
-                                <div class="flip-hint">Click card to see MyAnimeList link →</div>
-                            </div>
-                        </div>
-                        <div class="card-back">
-                            <div class="mal-button-container">
-                                ${malButton}
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            `;
-            fragment.appendChild(div);
-        });
-
-        recommendationsGrid.innerHTML = '';
-        recommendationsGrid.appendChild(fragment);
-    });
-}
-
-
-        function flipCard(card) {
-            const cardInner = card.querySelector('.card-inner');
-            const scoreElement = card.querySelector('.anime-score');
-            const buttonElement = card.querySelector('.already-watched-btn');
-
-            if (cardInner.classList.contains('flipped')) {
-                cardInner.classList.remove('flipped');
-                if (scoreElement) scoreElement.classList.add('hidden');
-                if (buttonElement) buttonElement.classList.add('hidden');
-
-                setTimeout(() => {
-                    if (scoreElement) scoreElement.classList.remove('hidden');
-                    if (buttonElement) buttonElement.classList.remove('hidden');
-                }, 300);
-            } else {
-                cardInner.classList.add('flipped');
-            }
-
-            const malButton = card.querySelector('.mal-button');
-            if (malButton) {
-                malButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            }
-        }
-
-        function showFavorites() {
-            document.getElementById('favoritesSection').style.display = 'block';
-            document.getElementById('recommendationsSection').style.display = 'none';
-            document.querySelector('.back-button').style.display = 'none';
-            window.scrollTo(0, 0);
-        }
-
-        function showMessage(message, type) {
-            alert(message);
-        }
-
-        async function addToFavoritesFromRecommendations(event, animeId, animeName) {
-            event.stopPropagation();
-
-            try {
-                const response = await fetch('/api/add_favorite', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        anime_id: animeId,
-                        anime_name: animeName
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showFavorites();
-                    loadFavorites();
-                    getRecommendations();
-                } else {
-                    showMessage("This anime is already in your favorites!", 'info');
-                }
-            } catch (error) {
-                console.error('Error adding favorite:', error);
-                showMessage('Error adding to favorites', 'error');
-            }
-        }
-
-        let currentFilters = {
-            show_sequels: false,
-            show_movies: true,
-            show_tv: true,
-            show_ova: false,
-        };
-
-        function toggleFilter(button) {
-            const filterName = button.getAttribute('data-filter');
-            const isActive = button.classList.contains('active');
-
-            if (isActive) {
-                button.classList.remove('active');
-                currentFilters[filterName] = false;
-            } else {
-                button.classList.add('active');
-                currentFilters[filterName] = true;
-            }
-        }
-
-        function applyFilters() {
-    getRecommendations(); 
-}
-
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                document.body.style.animationPlayState = 'paused';
-            } else {
-                document.body.style.animationPlayState = 'running';
-            }
-        });
-       function deleteAnimeCard(event, animeId) {
-    event.stopPropagation();
-
-    const cardWrapper = event.target.closest('.anime-card-wrapper');
-    const animeName = cardWrapper.querySelector('.anime-name').textContent;
-
-    addToBlacklist(animeId, animeName);
-
-    cardWrapper.style.transform = 'scale(0.8)';
-    cardWrapper.style.opacity = '0';
-    cardWrapper.style.transition = 'all 0.3s ease';
-
-    setTimeout(() => {
-        cardWrapper.remove();
-
-        const remainingCards = document.querySelectorAll('.anime-card-wrapper');
-        remainingCards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-        });
-
-        getRecommendations();
-    }, 300);
-}
-        let blacklistedAnimes = [];
-
-function loadBlacklist() {
-    const saved = localStorage.getItem('blacklistedAnimes');
-    if (saved) {
-        blacklistedAnimes = JSON.parse(saved);
-    }
-    updateBlacklistCounter();
-}
-
-function saveBlacklist() {
-    localStorage.setItem('blacklistedAnimes', JSON.stringify(blacklistedAnimes));
-    updateBlacklistCounter();
-}
-
-function updateBlacklistCounter() {
-    const counter = document.getElementById('blacklistCounter');
-    const button = document.getElementById('blacklistButton');
-
-    if (blacklistedAnimes.length > 0) {
-        counter.textContent = blacklistedAnimes.length;
-        button.classList.add('show');
-    } else {
-        counter.textContent = '0';
-        button.classList.remove('show');
-    }
-}
-
-function addToBlacklist(animeId, animeName) {
-    const existingIndex = blacklistedAnimes.findIndex(anime => anime.id === animeId);
-    if (existingIndex === -1) {
-        blacklistedAnimes.push({ id: animeId, name: animeName });
-        saveBlacklist();
-    }
-}
-function displayBlacklistItems() {
-    const blacklistList = document.getElementById('blacklistList');
-
-    if (blacklistedAnimes.length === 0) {
-        blacklistList.innerHTML = '<div class="empty-blacklist">No animes in blacklist</div>';
-        return;
-    }
-
-    const fragment = document.createDocumentFragment();
-    blacklistedAnimes.forEach(anime => {
-        const div = document.createElement('div');
-        div.className = 'blacklist-item';
-        div.innerHTML = `
-            <span class="blacklist-name">${anime.name}</span>
-            <button class="remove-blacklist-btn" onclick="removeFromBlacklist(${anime.id})">Remove</button>
-        `;
-        fragment.appendChild(div);
-    });
-
-    blacklistList.innerHTML = '';
-    blacklistList.appendChild(fragment);
-}
-function removeFromBlacklist(animeId) {
-    blacklistedAnimes = blacklistedAnimes.filter(anime => anime.id !== animeId);
-    saveBlacklist();
-    displayBlacklistItems();
-}
-function showCustomConfirm(title, message, onConfirm) {
-    const modal = document.createElement('div');
-    modal.className = 'custom-confirm-modal';
-    modal.innerHTML = `
-        <div class="custom-confirm-content">
-            <div class="confirm-header">
-                <h3>${title}</h3>
-            </div>
-            <div class="confirm-message">
-                <p>${message}</p>
-            </div>
-            <div class="confirm-actions">
-                <button class="confirm-btn cancel" onclick="closeCustomConfirm()">Cancel</button>
-                <button class="confirm-btn confirm" onclick="confirmAction()">Yes, Clear All</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    window.confirmAction = () => {
-        onConfirm();
-        closeCustomConfirm();
-    };
-
-    window.closeCustomConfirm = () => {
-        modal.remove();
-        delete window.confirmAction;
-        delete window.closeCustomConfirm;
-    };
-
-    setTimeout(() => modal.classList.add('show'), 50);
-}
-function clearBlacklist() {
-    showCustomConfirm(
-        'Clear All Blacklist',
-        'Are you sure you want to clear all blacklisted animes?',
-        () => {
-            blacklistedAnimes = [];
-            saveBlacklist();
-            displayBlacklistItems();
-        }
-    );
-}
-
-function openBlacklistModal() {
-    displayBlacklistItems();
-    document.getElementById('blacklistModal').classList.add('show');
-}
-
-function closeBlacklistModal() {
-    document.getElementById('blacklistModal').classList.remove('show');
-}
-    </script>
-</body>
-</html>
+
+            # Memory cleanup
+            del logits, last_logits
+            gc.collect()
+
+            return recommendations, [r['score'] for r in recommendations], f"Found {len(recommendations)} filtered recommendations!"
+
+        except Exception as e:
+            return [], [], f"Error during filtered prediction: {str(e)}"
+
+    def _should_include_anime(self, anime_id, filters):
+        """Filtrelere göre anime'nin dahil edilip edilmeyeceğini kontrol eder"""
+        if 'blacklisted_animes' in filters:
+            if anime_id in filters['blacklisted_animes']:
+                return False
+
+        type_seq_info = self.id_to_type_seq.get(str(anime_id))
+        if not type_seq_info or len(type_seq_info) < 2:
+            return True
+
+        anime_type = type_seq_info[0]
+        is_sequel = type_seq_info[1]
+        is_hentai = type_seq_info[2]
+
+        # Sequel filtresi
+        if 'show_sequels' in filters:
+            if not filters['show_sequels'] and is_sequel:
+                return False
+
+        # Hentai filtresi
+        if 'show_hentai' in filters:
+            if filters['show_hentai']:
+                if not is_hentai:
+                    return False
+            else:
+                if is_hentai:
+                    return False
+
+        # Tür filtreleri
+        if 'show_movies' in filters:
+            if not filters['show_movies'] and anime_type == 'MOVIE':
+                return False
+
+        if 'show_tv' in filters:
+            if not filters['show_tv'] and anime_type == 'TV':
+                return False
+
+        if 'show_ova' in filters:
+            if not filters['show_ova'] and anime_type in ['ONA', 'OVA', 'SPECIAL']:
+                return False
+
+        return True
+
+recommendation_system = None
+
+@app.route('/')
+def index():
+    if recommendation_system is None:
+        return render_template('error.html', error="Recommendation system not initialized. Please check server logs.")
+
+    animes = recommendation_system.get_all_animes()
+    return render_template('index.html', animes=animes)
+
+@app.route('/api/search_animes')
+def search_animes():
+    query = request.args.get('q', '').lower()
+    animes = []
+    
+    # Sadece ilk 200 anime'yi arama - performance için
+    count = 0
+    for k, v in recommendation_system.id_to_anime.items():
+        if count >= 200:
+            break
+            
+        anime_names = v if isinstance(v, list) else [v]
+        match_found = False
+        
+        for name in anime_names:
+            if query in name.lower():
+                match_found = True
+                break
+
+        if not query or match_found:
+            main_name = anime_names[0] if anime_names else "Unknown"
+            animes.append((int(k), main_name))
+            count += 1
+
+    animes.sort(key=lambda x: x[1])
+    return jsonify(animes)
+
+@app.route('/api/add_favorite', methods=['POST'])
+def add_favorite():
+    if 'favorites' not in session:
+        session['favorites'] = []
+
+    data = request.get_json()
+    anime_id = int(data['anime_id'])
+
+    if anime_id not in session['favorites']:
+        # Maksimum 20 favori anime (memory için)
+        if len(session['favorites']) >= 20:
+            return jsonify({'success': False, 'message': 'Maximum 20 favorite animes allowed'})
+        
+        session['favorites'].append(anime_id)
+        session.modified = True
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False})
+
+@app.route('/api/remove_favorite', methods=['POST'])
+def remove_favorite():
+    if 'favorites' not in session:
+        session['favorites'] = []
+
+    data = request.get_json()
+    anime_id = int(data['anime_id'])
+
+    if anime_id in session['favorites']:
+        session['favorites'].remove(anime_id)
+        session.modified = True
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False})
+
+@app.route('/api/clear_favorites', methods=['POST'])
+def clear_favorites():
+    session['favorites'] = []
+    session.modified = True
+    return jsonify({'success': True})
+
+@app.route('/api/get_favorites')
+def get_favorites():
+    if 'favorites' not in session:
+        session['favorites'] = []
+
+    favorite_animes = []
+    for anime_id in session['favorites']:
+        if str(anime_id) in recommendation_system.id_to_anime:
+            anime_data = recommendation_system.id_to_anime.get(str(anime_id))
+            anime_name = anime_data[0] if isinstance(anime_data, list) and len(anime_data) > 0 else str(anime_data)
+            favorite_animes.append({'id': anime_id, 'name': anime_name})
+
+    return jsonify(favorite_animes)
+
+
+@app.route('/api/get_recommendations', methods=['POST'])
+def get_recommendations():
+    if 'favorites' not in session or not session['favorites']:
+        return jsonify({'success': False, 'message': 'Please add some favorite animes first!'})
+
+    data = request.get_json() or {}
+    filters = data.get('filters', {})
+
+    # Blacklist bilgisini ekle
+    blacklisted_animes = data.get('blacklisted_animes', [])
+    if blacklisted_animes:
+        filters['blacklisted_animes'] = blacklisted_animes
+
+    recommendations, scores, message = recommendation_system.get_recommendations(
+        session['favorites'],
+        filters=filters
+    )
+
+    if recommendations:
+        return jsonify({
+            'success': True,
+            'recommendations': recommendations,
+            'message': message
+        })
+    else:
+        return jsonify({'success': False, 'message': message})
+
+
+@app.route('/api/mal_logo')
+def get_mal_logo():
+    # MyAnimeList logo URL'ini döndür
+    return jsonify({
+        'success': True,
+        'logo_url': 'https://cdn.myanimelist.net/img/sp/icon/apple-touch-icon-256.png'
+    })
+
+
+def main():
+    global recommendation_system
+
+    args.num_items = 12689
+
+    try:
+        images_path = "Data/id_to_url.json"
+        mal_urls_path = "Data/id_to_malurl.json"
+        type_seq_path = "Data/id_to_typenseq.json"
+
+        if not os.path.exists(images_path):
+            print(f"Warning: {images_path} not found. Images will not be displayed.")
+
+        if not os.path.exists(mal_urls_path):
+            print(f"Warning: {mal_urls_path} not found. MAL links will not be available.")
+
+        recommendation_system = AnimeRecommendationSystem(
+            "Data/AnimeRatings54M/pretrained_bert.pth",
+            "Data/preprocessed/AnimeRatings54M_min_rating7-min_uc10-min_sc10-splitleave_one_out/dataset.pkl",
+            "Data/animes.json",
+            images_path,
+            mal_urls_path,
+            type_seq_path,
+            "Data/id_to_genres.json"
+        )
+        print("Recommendation system initialized successfully!")
+    except Exception as e:
+        print(f"Failed to initialize recommendation system: {e}")
+        sys.exit(1)
+
+    app.run(debug=False, host='0.0.0.0', port=5000)
+
+
+if __name__ == "__main__":
+    main()
